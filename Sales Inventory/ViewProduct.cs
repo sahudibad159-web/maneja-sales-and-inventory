@@ -39,7 +39,7 @@ namespace Sales_Inventory
         SELECT 
                p.ProductID,
                p.ProductName,
-               p.Description,
+               i.Description,
                i.QuantityInStock,
                p.RetailPrice
         FROM inventory i
@@ -169,13 +169,13 @@ namespace Sales_Inventory
                 SELECT 
                     p.ProductID,
                     p.ProductName,
-                    p.Description,
+                    i.Description,
                     i.QuantityInStock,
                     p.RetailPrice
                 FROM inventory i
                 INNER JOIN product p ON i.ProductID = p.ProductID
                 WHERE p.ProductName LIKE @search
-                   OR p.Description LIKE @search
+                   OR i.Description LIKE @search
                 ORDER BY p.ProductName ASC";
 
                     using (var cmd = new MySqlCommand(query, con))

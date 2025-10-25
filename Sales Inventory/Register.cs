@@ -35,7 +35,7 @@ namespace Sales_Inventory
 
             string contact = txtContactNumber.Text.Trim();
 
-            // Contact validation ulit (in case hindi nag-trigger yung Leave)
+            // Contact validation (numbers only, starts with 09, 11 digits)
             if (!Regex.IsMatch(contact, @"^\d+$"))
             {
                 MessageBox.Show("Contact number must contain numbers only.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -62,10 +62,27 @@ namespace Sales_Inventory
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
                 {
                     con.Open();
+
+                    // 🔍 1️⃣ Check if contact number already exists
+                    string checkSql = "SELECT COUNT(*) FROM members WHERE ContactNumber = @contact";
+                    using (var checkCmd = new MySqlCommand(checkSql, con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@contact", contact);
+                        int count = Convert.ToInt32(checkCmd.ExecuteScalar());
+
+                        if (count > 0)
+                        {
+                            MessageBox.Show("This contact number is already registered.", "Duplicate Entry", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            txtContactNumber.Focus();
+                            return; // ⛔ Stop saving
+                        }
+                    }
+
                     using (var txn = con.BeginTransaction())
                     {
                         try
                         {
+                            // 🧾 Insert new member
                             string insertSql = @"INSERT INTO members (FirstName, LastName, ContactNumber, Points, DateJoined, MemberCode)
                                          VALUES (@first, @last, @contact, 0, @date, @code)";
                             using (var cmd = new MySqlCommand(insertSql, con, txn))
@@ -78,6 +95,7 @@ namespace Sales_Inventory
                                 cmd.ExecuteNonQuery();
                             }
 
+                            // 🆔 Get new ID and generate MemberCode
                             long newId;
                             using (var cmd = new MySqlCommand("SELECT LAST_INSERT_ID();", con, txn))
                             {
@@ -100,7 +118,8 @@ namespace Sales_Inventory
                             this.NewMemberCode = newCode;
 
                             MessageBox.Show("Member registered successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            // ✅ Just call without parameters
+
+                            // 🖨️ Print card and close
                             PrintMembershipCard();
                             this.DialogResult = DialogResult.OK;
                             this.Close();
@@ -118,6 +137,7 @@ namespace Sales_Inventory
                 MessageBox.Show("Connection error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
 
         private void PrintMembershipCard()

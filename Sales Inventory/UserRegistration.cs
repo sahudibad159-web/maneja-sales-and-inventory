@@ -529,11 +529,12 @@ namespace Sales_Inventory
                 }
 
                 // ✅ 4. Validate password strength
-                if (txtPassword.Text.Length < 6)
+                if (txtPassword.Text.Length > 0 && txtPassword.Text.Length < 6)
                 {
                     MessageBox.Show("Password must be at least 6 characters long.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+
 
                 // ✅ 5. Validate username format
                 if (!System.Text.RegularExpressions.Regex.IsMatch(txtUserName.Text, @"^[a-zA-Z0-9_]+$"))

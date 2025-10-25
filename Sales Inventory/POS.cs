@@ -907,7 +907,9 @@ namespace Sales_Inventory
                         foreach (DataGridViewRow row in dgvProduct.Rows)
                         {
                             if (row.Cells["ProductNameColumn"].Value != null &&
-                                row.Cells["ProductNameColumn"].Value.ToString() == popup.SelectedProductName)
+                                row.Cells["DescriptionColumn"].Value != null &&
+                                row.Cells["ProductNameColumn"].Value.ToString() == popup.SelectedProductName &&
+                                row.Cells["DescriptionColumn"].Value.ToString() == popup.SelectedDescription)
                             {
                                 // 🚫 Prevent quantity add if discounted
                                 decimal existingDiscount = row.Cells["DiscountColumn"].Value != null
@@ -941,6 +943,7 @@ namespace Sales_Inventory
                                 break;
                             }
                         }
+
 
                         if (!productExists)
                         {

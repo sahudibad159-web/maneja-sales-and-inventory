@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Guna.UI2.WinForms.Suite;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -138,12 +139,15 @@ namespace Sales_Inventory
                     int nearlyCount = 0;
 
                     // Get all delivery batches that haven't been processed yet
-                    string query = @"
-                SELECT d.idDetail, d.idDelivery, d.ProductID, d.QtyDelivered, d.ExpirationDate, p.ProductName
+                                    string query = @"
+                                SELECT d.idDetail, d.idDelivery, d.ProductID, d.QtyDelivered, d.ExpirationDate, 
+                       p.ProductName, i.Description
                 FROM delivery_details d
                 INNER JOIN product p ON d.ProductID = p.ProductID
+                INNER JOIN inventory i ON i.ProductID = p.ProductID
                 WHERE d.Status != 'Expired'
-                ORDER BY STR_TO_DATE(d.ExpirationDate, '%Y-%m-%d') ASC"; // earliest expiration first
+                ORDER BY STR_TO_DATE(d.ExpirationDate, '%Y-%m-%d') ASC;
+                "; // earliest expiration first
 
                     DataTable dtBatches = new DataTable();
                     using (MySqlDataAdapter da = new MySqlDataAdapter(query, con))
@@ -157,7 +161,7 @@ namespace Sales_Inventory
                         int productID = Convert.ToInt32(row["ProductID"]);
                         string productName = row["ProductName"].ToString();
                         int qtyDelivered = Convert.ToInt32(row["QtyDelivered"]);
-
+                        string descriptionName = row["Description"].ToString();
                         string expValue = row["ExpirationDate"].ToString().Trim();
                         if (!DateTime.TryParse(expValue, out DateTime expDate))
                             continue;
@@ -173,7 +177,7 @@ namespace Sales_Inventory
                         }
                         else if (daysRemaining <= 30) // Nearly expired
                         {
-                            InsertNearlyExpiredProduct(con, productID, idDetail, productName, qtyDelivered, expDate, (int)daysRemaining);
+                            InsertNearlyExpiredProduct(con, productID, idDetail, productName, descriptionName, qtyDelivered, expDate, (int)daysRemaining);
                             nearlyCount++;
                         }
                     }
@@ -256,7 +260,7 @@ namespace Sales_Inventory
         }
 
         // Insert or update nearly expired product
-        private void InsertNearlyExpiredProduct(MySqlConnection con, int productID, int idDetail, string productName, int qty, DateTime expDate, int daysRemaining)
+        private void InsertNearlyExpiredProduct(MySqlConnection con, int productID, int idDetail, string productName, string descriptionName,  int qty, DateTime expDate, int daysRemaining)
         {
             // 1️⃣ Check kung existing na ang record (by ProductName + ExpirationDate)
             string duplicateCheck = @"SELECT COUNT(*) FROM nearly_expired_products 
@@ -291,13 +295,15 @@ namespace Sales_Inventory
 
             // 3️⃣ If not existing yet → insert new
             string insertQuery = @"INSERT INTO nearly_expired_products
-                           (idInventory, idDetail, ProductName, Quantity, ExpirationDate, DaysRemaining)
+                           (idInventory, idDetail, ProductName, Quantity, ExpirationDate, DaysRemaining, Description)
                            VALUES ((SELECT idInventory FROM inventory WHERE ProductID=@ProductID LIMIT 1),
-                                   @idDetail, @ProductName, @Quantity, @ExpirationDate, @DaysRemaining)";
+                                   @idDetail, @ProductName, @Quantity, @ExpirationDate, @DaysRemaining, @Description)";
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, con))
             {
                 cmd.Parameters.AddWithValue("@ProductID", productID);
                 cmd.Parameters.AddWithValue("@idDetail", idDetail);
+                cmd.Parameters.AddWithValue("@Description", descriptionName);
+
                 cmd.Parameters.AddWithValue("@ProductName", productName);
                 cmd.Parameters.AddWithValue("@Quantity", qty);
                 cmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
