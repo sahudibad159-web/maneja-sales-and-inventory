@@ -762,6 +762,20 @@ namespace Sales_Inventory
                     cmd.ExecuteNonQuery();
                 }
 
+                // ✅ Update ReorderLevel in inventory as well
+                string updateInventoryReorder = @"
+                UPDATE inventory 
+                SET ReorderLevel = @ReorderLevel
+                WHERE ProductID = (SELECT ProductID FROM Product WHERE Barcode = @Barcode);";
+
+                using (MySqlCommand invCmd = new MySqlCommand(updateInventoryReorder, ConnectionModule.con))
+                {
+                    invCmd.Parameters.AddWithValue("@ReorderLevel", rLevel);
+                    invCmd.Parameters.AddWithValue("@Barcode", newBarcode);
+                    invCmd.ExecuteNonQuery();
+                }
+
+
                 MessageBox.Show("Product updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 // 📝 Audit Trail (Update)

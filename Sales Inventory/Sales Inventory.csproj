@@ -149,6 +149,12 @@
       <DependentUpon>Category.cs</DependentUpon>
     </Compile>
     <Compile Include="ConnectionModule.cs" />
+    <Compile Include="CriticalStock.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CriticalStock.Designer.cs">
+      <DependentUpon>CriticalStock.cs</DependentUpon>
+    </Compile>
     <Compile Include="Dashboard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -398,6 +404,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Category.resx">
       <DependentUpon>Category.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CriticalStock.resx">
+      <DependentUpon>CriticalStock.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dashboard.resx">
       <DependentUpon>Dashboard.cs</DependentUpon>

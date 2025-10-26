@@ -145,7 +145,7 @@
             this.dtpDeliveryDate.Name = "dtpDeliveryDate";
             this.dtpDeliveryDate.Size = new System.Drawing.Size(229, 36);
             this.dtpDeliveryDate.TabIndex = 80;
-            this.dtpDeliveryDate.Value = new System.DateTime(2025, 8, 21, 15, 21, 5, 471);
+            this.dtpDeliveryDate.Value = new System.DateTime(2025, 10, 26, 0, 0, 0, 0);
             // 
             // label5
             // 

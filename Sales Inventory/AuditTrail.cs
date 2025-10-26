@@ -16,30 +16,42 @@ namespace Sales_Inventory
         public AuditTrail()
         {
             InitializeComponent();
-            LoadAuditTrail();
+
             StyleDataGridView(dgvAuditTrail);
+          
+
         }
-        private void LoadAuditTrail()
+        private void LoadAuditTrail(DateTime fromDate, DateTime toDate)
         {
             try
             {
                 ConnectionModule.openCon();
-                string query = "SELECT AuditID, Username, ActionType, ModuleName, Description, ActionDate FROM AuditTrail ORDER BY ActionDate DESC";
-                MySqlCommand cmd = new MySqlCommand(query, ConnectionModule.con);
-                MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
 
-                dgvAuditTrail.DataSource = dt;
-                // Itago ang ID column para di makita ng user
+                string query = @"
+            SELECT AuditID, Username, ActionType, ModuleName, Description, ActionDate 
+            FROM AuditTrail
+            WHERE ActionDate BETWEEN @From AND @To
+            ORDER BY ActionDate DESC";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, ConnectionModule.con))
+                {
+                    cmd.Parameters.AddWithValue("@From", fromDate);
+                    cmd.Parameters.AddWithValue("@To", toDate);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        DataTable dt = new DataTable();
+                        dt.Load(reader);
+                        dgvAuditTrail.DataSource = dt;
+                    }
+                }
+
+                // Hide ID column
                 if (dgvAuditTrail.Columns.Contains("AuditID"))
                     dgvAuditTrail.Columns["AuditID"].Visible = false;
 
-                // Format DGV
-                dgvAuditTrail.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-                dgvAuditTrail.ReadOnly = true;
-                dgvAuditTrail.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-
+                // Optional styling (if you want same look as your shift logs)
+                StyleDataGridView(dgvAuditTrail);
             }
             catch (Exception ex)
             {
@@ -50,6 +62,7 @@ namespace Sales_Inventory
                 ConnectionModule.closeCon();
             }
         }
+
         private void StyleDataGridView(DataGridView dgv)
         {
             // General appearance
@@ -117,7 +130,26 @@ namespace Sales_Inventory
 
         private void AuditTrail_Load(object sender, EventArgs e)
         {
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
 
+            LoadAuditTrail(fromDate, toDate);
+        }
+
+        private void dtpFrom_ValueChanged(object sender, EventArgs e)
+        {
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
+
+            LoadAuditTrail(fromDate, toDate);
+        }
+
+        private void dtpTo_ValueChanged(object sender, EventArgs e)
+        {
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
+
+            LoadAuditTrail(fromDate, toDate);
         }
     }
 }

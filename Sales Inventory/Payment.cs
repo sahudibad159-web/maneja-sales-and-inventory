@@ -422,21 +422,50 @@ namespace Sales_Inventory
             {
                 decimal cash = string.IsNullOrWhiteSpace(txtCash.Text) ? 0 : Convert.ToDecimal(txtCash.Text);
                 decimal gcash = string.IsNullOrWhiteSpace(txtGcash.Text) ? 0 : Convert.ToDecimal(txtGcash.Text);
-                decimal totalPaid = cash + gcash;
 
+                // Compute total after discount and points
                 decimal pointsApplied = Math.Min(RedeemPoints, netAmount);
-                // ❌ if netAmount already subtracted points, do:
-                decimal amountAfterPoints = netAmount; // just take netAmount as-is
-               
+                decimal amountAfterDiscount = totalAmount - discountAmount;
+                if (amountAfterDiscount < 0) amountAfterDiscount = 0;
 
+                decimal amountAfterPoints = amountAfterDiscount - pointsApplied;
+                if (amountAfterPoints < 0) amountAfterPoints = 0;
 
+                // ✅ Limit cash/gcash to not exceed total due
+                decimal totalPaid = cash + gcash;
+                if (totalPaid > amountAfterPoints)
+                {
+                    decimal excess = totalPaid - amountAfterPoints;
+
+                    // Proportionally adjust the cash/gcash values
+                    if (gcash > 0 && cash > 0)
+                    {
+                        decimal ratio = cash / (cash + gcash);
+                        cash = Math.Round(amountAfterPoints * ratio, 2);
+                        gcash = amountAfterPoints - cash;
+                    }
+                    else if (cash > 0)
+                    {
+                        cash = amountAfterPoints;
+                        gcash = 0;
+                    }
+                    else if (gcash > 0)
+                    {
+                        gcash = amountAfterPoints;
+                        cash = 0;
+                    }
+
+                    totalPaid = amountAfterPoints; // cap total payment to exact amount due
+                }
+
+                // ✅ Validate payment again
                 if (totalPaid < amountAfterPoints)
                 {
                     MessageBox.Show("Insufficient payment!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                decimal change = totalPaid - amountAfterPoints;
+                decimal change = 0; // no excess payment allowed anymore
                 // 🧠 New logic for saving actual sale allocation
                 decimal actualCashUsed = 0;
                 decimal actualGCashUsed = 0;

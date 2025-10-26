@@ -387,7 +387,7 @@
             this.dtpExpirationDate.Name = "dtpExpirationDate";
             this.dtpExpirationDate.Size = new System.Drawing.Size(188, 36);
             this.dtpExpirationDate.TabIndex = 180;
-            this.dtpExpirationDate.Value = new System.DateTime(2025, 8, 21, 15, 21, 5, 471);
+            this.dtpExpirationDate.Value = new System.DateTime(2025, 10, 26, 0, 0, 0, 0);
             // 
             // label10
             // 
@@ -589,11 +589,11 @@
             this.dtpDeliveryDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpDeliveryDate.Location = new System.Drawing.Point(271, 127);
             this.dtpDeliveryDate.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
-            this.dtpDeliveryDate.MinDate = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
+            this.dtpDeliveryDate.MinDate = new System.DateTime(1990, 1, 1, 0, 0, 0, 0);
             this.dtpDeliveryDate.Name = "dtpDeliveryDate";
             this.dtpDeliveryDate.Size = new System.Drawing.Size(202, 36);
             this.dtpDeliveryDate.TabIndex = 169;
-            this.dtpDeliveryDate.Value = new System.DateTime(2025, 8, 21, 15, 21, 5, 471);
+            this.dtpDeliveryDate.Value = new System.DateTime(2025, 10, 26, 0, 0, 0, 0);
             // 
             // label5
             // 

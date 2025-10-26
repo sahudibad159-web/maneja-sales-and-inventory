@@ -21,8 +21,11 @@ namespace Sales_Inventory
         public UserRegistration()
         {
             InitializeComponent();
-            LoadUsers();
             StyleDataGridView(dgvUsers);
+            LoadUsers();
+            dgvUsers.ClearSelection();
+            dgvUsers.CurrentCell = null;
+         
            
         }
 
@@ -156,10 +159,11 @@ namespace Sales_Inventory
             }
         }
 
+
+
         private void UserRegistration_Load(object sender, EventArgs e)
         {
-            dgvUsers.ClearSelection();
-            dgvUsers.CurrentCell = null;
+           
 
             txtPassword.UseSystemPasswordChar = true;
             // Restrict inputs (letters, spaces, ., , , - only)
@@ -691,6 +695,15 @@ namespace Sales_Inventory
 
             int userId = Convert.ToInt32(row.Cells["UserID"].Value);
             string username = row.Cells["Username"].Value.ToString();
+            string role = row.Cells["Role"].Value.ToString(); // ✅ make sure you have a Role column in dgvUsers
+
+            // ✅ Prevent deleting Admin role
+            if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("You cannot deactivate or delete an Admin account.",
+                                "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             DialogResult result = MessageBox.Show($"Are you sure you want to deactivate user '{username}'?",
                                                   "Confirm Deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Question);

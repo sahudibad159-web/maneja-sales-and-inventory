@@ -22,7 +22,7 @@ namespace Sales_Inventory
                 SELECT COUNT(*) 
                 FROM inventory i
                 INNER JOIN product p ON i.ProductID = p.ProductID
-                WHERE i.QuantityInStock <= p.ReorderLevel";
+                WHERE i.QuantityInStock <= i.ReorderLevel";
 
             using (MySqlConnection con = new MySqlConnection("server=localhost;user id=root;password=;database=sales_inventory"))
             {

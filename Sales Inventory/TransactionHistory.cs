@@ -555,7 +555,7 @@ namespace Sales_Inventory
                 y += 20;
                 ev.Graphics.DrawString($"Date: {DateTime.Now}", font, Brushes.Black, 10, y);
                 y += 20;
-                ev.Graphics.DrawString("Voided by: " + Session.FullName, font, Brushes.Black, 10, y);
+                ev.Graphics.DrawString("Voided by: " + ConnectionModule.Session.FullName, font, Brushes.Black, 10, y);
             };
 
             pd.Print();

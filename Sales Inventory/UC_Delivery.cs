@@ -764,8 +764,10 @@ namespace Sales_Inventory
 
         private void UpdateInventory(MySqlConnection con, MySqlTransaction transaction, int productID, int qtyDelivered, int deliveryDetailID, object expirationForDB, string description)
         {
+        
             int currentInventoryID = 0;
             int currentQty = 0;
+            int reorderLevel = 0;
 
             // 🛠 Step 1: Ensure we have correct description (in case textbox was cleared)
             if (string.IsNullOrWhiteSpace(description))
@@ -778,7 +780,15 @@ namespace Sales_Inventory
                 }
             }
 
-            // 🧾 Step 2: Check if inventory record already exists (ProductID + Description)
+            // 🧾 Step 2: Get ReorderLevel from Product table (since inventory may not have one yet)
+            using (MySqlCommand cmdGetReorder = new MySqlCommand("SELECT ReorderLevel FROM product WHERE ProductID=@ProductID LIMIT 1", con, transaction))
+            {
+                cmdGetReorder.Parameters.AddWithValue("@ProductID", productID);
+                object rlObj = cmdGetReorder.ExecuteScalar();
+                reorderLevel = rlObj != null ? Convert.ToInt32(rlObj) : 0;
+            }
+
+            // 🧾 Step 3: Check if inventory record already exists (ProductID + Description)
             string checkInventory = @"SELECT idInventory, QuantityInStock 
                               FROM inventory 
                               WHERE ProductID=@ProductID AND Description=@Description";
@@ -796,12 +806,13 @@ namespace Sales_Inventory
                 }
             }
 
-            // 🧩 Step 3: Update or Insert Inventory
+            // 🧩 Step 4: Update or Insert Inventory
             if (currentInventoryID > 0)
             {
-                // ✅ Same ProductID + Description → Update quantity
+                // ✅ Same ProductID + Description → Update quantity only
                 string updateInventory = @"UPDATE inventory 
-                                   SET QuantityInStock = @newQty, LastUpdated = NOW() 
+                                   SET QuantityInStock = @newQty, 
+                                       LastUpdated = NOW()
                                    WHERE idInventory=@idInventory";
                 using (MySqlCommand cmdUpdate = new MySqlCommand(updateInventory, con, transaction))
                 {
@@ -812,24 +823,26 @@ namespace Sales_Inventory
             }
             else
             {
-                // ✅ Different Description or new product → Insert new row
+                // ✅ Different Description or new product → Insert new row (with ReorderLevel)
                 string insertInventory = @"INSERT INTO inventory 
-                                   (idDetail, ProductID, Description, QuantityInStock, Remarks, LastUpdated) 
-                                   VALUES (@idDetail, @ProductID, @Description, @qtyDelivered, 'Initial stock from delivery', NOW())";
+                                   (idDetail, ProductID, Description, QuantityInStock, Remarks, LastUpdated, ReorderLevel) 
+                                   VALUES (@idDetail, @ProductID, @Description, @qtyDelivered, 'Initial stock from delivery', NOW(), @ReorderLevel)";
                 using (MySqlCommand cmdInsert = new MySqlCommand(insertInventory, con, transaction))
                 {
                     cmdInsert.Parameters.AddWithValue("@idDetail", deliveryDetailID);
                     cmdInsert.Parameters.AddWithValue("@ProductID", productID);
                     cmdInsert.Parameters.AddWithValue("@Description", description?.Trim() ?? "");
                     cmdInsert.Parameters.AddWithValue("@qtyDelivered", qtyDelivered);
+                    cmdInsert.Parameters.AddWithValue("@ReorderLevel", reorderLevel);
                     cmdInsert.ExecuteNonQuery();
 
                     currentInventoryID = (int)cmdInsert.LastInsertedId;
                 }
             }
+        
 
-            // 📦 Step 4: Log movement
-            string queryMovement = @"INSERT INTO inventory_movements 
+        // 📦 Step 4: Log movement
+        string queryMovement = @"INSERT INTO inventory_movements 
     (idDetail, ProductID, MovementType, Quantity, Source, ReferenceID, Remarks, Description) 
     VALUES (@idDetail, @ProductID, 'IN', @qtyDelivered, 'Delivery', @referenceID, @Remarks, @Description)";
             using (MySqlCommand cmdMove = new MySqlCommand(queryMovement, con, transaction))

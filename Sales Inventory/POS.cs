@@ -13,7 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using ContextMenu = System.Windows.Forms.ContextMenu;
 using TextBox = System.Windows.Forms.TextBox;
-
+using System.Globalization; // make sure this is at the top of your file
 
 namespace Sales_Inventory
 {
@@ -304,7 +304,7 @@ namespace Sales_Inventory
                             }
 
                             dgvProduct.ClearSelection();
-                            
+
                             ComputeTotals();
                         }
                         else
@@ -1047,6 +1047,18 @@ namespace Sales_Inventory
             }
 
         }
+        private decimal SafeToDecimal(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return 0;
+
+            string clean = text.Replace("₱", "").Replace(",", "").Trim();
+
+            if (decimal.TryParse(clean, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal value))
+                return value;
+
+            return 0;
+        }
 
         private void ProcessSaleWithPoints()
         {
@@ -1054,6 +1066,9 @@ namespace Sales_Inventory
             {
                 decimal finalNetAmount = netAmount; // total ng cart
                 decimal redeemPoints = RedeemPoints;
+                decimal total = SafeToDecimal(txtTotal.Text);
+                decimal vat = SafeToDecimal(txtVatAmount.Text);
+                decimal discount = SafeToDecimal(txtDiscount.Text);
                 int? memberId = MemberId;
 
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
@@ -1087,9 +1102,9 @@ VALUES (@date, @member, @total, @vat, @discount, @net, @redeem, @earned, 'Points
                             {
                                 cmd.Parameters.AddWithValue("@date", DateTime.Now);
                                 cmd.Parameters.AddWithValue("@member", (object)memberId ?? DBNull.Value);
-                                cmd.Parameters.AddWithValue("@total", Convert.ToDecimal(txtTotal.Text));
-                                cmd.Parameters.AddWithValue("@vat", Convert.ToDecimal(txtVatAmount.Text));
-                                cmd.Parameters.AddWithValue("@discount", Convert.ToDecimal(txtDiscount.Text));
+                                cmd.Parameters.AddWithValue("@total", total);
+                                cmd.Parameters.AddWithValue("@vat", vat);
+                                cmd.Parameters.AddWithValue("@discount", discount);
                                 cmd.Parameters.AddWithValue("@net", finalNetAmount);
                                 cmd.Parameters.AddWithValue("@redeem", redeemPoints);
                                 cmd.Parameters.AddWithValue("@earned", earnedPoints);
@@ -1111,9 +1126,9 @@ VALUES (@date, @member, @total, @vat, @discount, @net, @redeem, @earned, 'Points
 
                                 // Insert sales details
                                 string insertDetails = @"
-INSERT INTO salesdetails
-(SaleID, ProductID, Quantity, UnitPrice, SubTotal, IsVoided)
-VALUES (@saleId, @productId, @qty, @price, @subtotal, 0)";
+                                INSERT INTO salesdetails
+                                (SaleID, ProductID, Quantity, UnitPrice, SubTotal, IsVoided)
+                                VALUES (@saleId, @productId, @qty, @price, @subtotal, 0)";
                                 using (var cmdDetails = new MySqlCommand(insertDetails, con, trans))
                                 {
                                     cmdDetails.Parameters.AddWithValue("@saleId", saleId);
@@ -1126,11 +1141,11 @@ VALUES (@saleId, @productId, @qty, @price, @subtotal, 0)";
 
                                 // Deduct stock per batch
                                 string getBatches = @"
-SELECT dd.idDetail, dd.QtyDelivered, d.DeliveryDate, dd.ExpirationDate
-FROM delivery_details dd
-INNER JOIN delivery d ON dd.idDelivery = d.idDelivery
-WHERE dd.ProductID=@productId
-ORDER BY d.DeliveryDate ASC";
+                                    SELECT dd.idDetail, dd.QtyDelivered, d.DeliveryDate, dd.ExpirationDate
+                                    FROM delivery_details dd
+                                    INNER JOIN delivery d ON dd.idDelivery = d.idDelivery
+                                    WHERE dd.ProductID=@productId
+                                    ORDER BY d.DeliveryDate ASC";
                                 var batches = new List<(int idDetail, int qtyDelivered, string expDate)>();
                                 using (var cmdBatches = new MySqlCommand(getBatches, con, trans))
                                 {
@@ -1154,7 +1169,7 @@ ORDER BY d.DeliveryDate ASC";
 
                                     // Check sold qty
                                     string soldQtyQuery = @"SELECT IFNULL(SUM(Quantity),0) FROM inventory_movements 
-WHERE idDetail=@idDetail AND ProductID=@productId AND MovementType='OUT'";
+                                    WHERE idDetail=@idDetail AND ProductID=@productId AND MovementType='OUT'";
                                     int soldQty = Convert.ToInt32(new MySqlCommand(soldQtyQuery, con, trans)
                                     {
                                         Parameters = {
@@ -1256,13 +1271,9 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
             string memberCode = txtMemberID.Text.Trim();
             if (string.IsNullOrEmpty(memberCode)) return;
 
-            // ✅ Check if cart is empty
-            if (dgvProduct.Rows.Cast<DataGridViewRow>().All(r => r.IsNewRow))
-            {
-                MessageBox.Show("No products in the cart.",
-                                "Member Points Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            // ⚠️ Allow opening MemberPoints even if cart is empty
+            bool isCartEmpty = dgvProduct.Rows.Cast<DataGridViewRow>().All(r => r.IsNewRow);
+
 
             // ✅ Check if any discount is already applied
             bool anyDiscountApplied = dgvProduct.Rows.Cast<DataGridViewRow>()
@@ -1277,48 +1288,49 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 return;
             }
 
-            // ✅ Proceed to open Member Points popup
             using (MemberPoints frm = new MemberPoints(memberCode))
             {
                 decimal currentTotal = string.IsNullOrWhiteSpace(txtTotal.Text) ? 0 : Convert.ToDecimal(txtTotal.Text);
                 frm.TotalAmount = currentTotal;
 
+                // ➕ Add this line:
+                frm.CartIsEmpty = isCartEmpty;
+
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     RedeemPoints = frm.RedeemedPoints;
 
-                    // ✅ Validation: if walang laman ang cart pero nag-attempt mag-redeem
-                    if (dgvProduct.Rows.Count == 0 && RedeemPoints > 0)
+                    // ✅ Extra safety: prevent applying points if cart is empty
+                    if (isCartEmpty && RedeemPoints > 0)
                     {
                         MessageBox.Show("You cannot redeem points without any products in the cart.",
                                         "Empty Cart", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                        RedeemPoints = 0; // reset para walang ma-apply na points
+                        RedeemPoints = 0;
                         return;
                     }
 
-                    if (frm.PointsCoverTotal)
-                    {
-                        ProcessSaleWithPoints();
-                        ResetPOS();
-                        return;
-                    }
-                    else if (RedeemPoints > 0)
-                    {
-                        decimal remainingTotal = currentTotal - RedeemPoints;
-                        if (remainingTotal < 0) remainingTotal = 0;
+            if (frm.PointsCoverTotal)
+                {
+                    ProcessSaleWithPoints();
+                    ResetPOS();
+                    return;
+                }
+                else if (RedeemPoints > 0)
+                {
+                    decimal remainingTotal = currentTotal - RedeemPoints;
+                    if (remainingTotal < 0) remainingTotal = 0;
 
-                        txtRedeemedPoints.Text = RedeemPoints.ToString("N2");
-                        txtPoints.Text = RedeemPoints.ToString("N2");
-                        txtTotal.Text = remainingTotal.ToString("N2");
-                        netAmount = remainingTotal;
+                    txtRedeemedPoints.Text = RedeemPoints.ToString("N2");
+                    txtPoints.Text = RedeemPoints.ToString("N2");
+                    txtTotal.Text = remainingTotal.ToString("N2");
+                    netAmount = remainingTotal;
 
-                        txtMemberID.Enabled = false;
-                    }
+                    txtMemberID.Enabled = false;
                 }
             }
         }
-
+    }
         private void ResetPOS()
         {
             // Clear cart
@@ -1951,6 +1963,15 @@ WHERE s.TransactionDate BETWEEN @start AND @end
 
         private void guna2Button3_Click(object sender, EventArgs e)
         {
+
+            // ✅ Prevent End Shift if there are items in dgvProduct
+            if (dgvProduct.Rows.Count > 0)
+            {
+                MessageBox.Show("Cannot end shift while there are still items in the product list. Please clear them first.",
+                                "End Shift Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return; // stop execution
+            }
+
             string cashier = ConnectionModule.Session.FullName;
             DateTime shiftStartTime = ConnectionModule.Session.ShiftStart;
             DateTime shiftEndTime = DateTime.Now;

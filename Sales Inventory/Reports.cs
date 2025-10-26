@@ -153,5 +153,27 @@ namespace Sales_Inventory
         {
 
         }
+
+        private void guna2Button4_Click(object sender, EventArgs e)
+        {
+            //try
+            //{
+            //    using (CriticalStock regForm = new CriticalStock())
+            //    {
+            //        var result = regForm.ShowDialog();
+
+            //        if (result == DialogResult.OK)
+            //        {
+            //            // dito na lang optional refresh kung kailangan
+            //            // LoadMembers();
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show("Error opening CriticalStock form: " + ex.Message,
+            //                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
     }
 }

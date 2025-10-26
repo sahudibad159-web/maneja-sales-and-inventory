@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -102,6 +103,7 @@ namespace Sales_Inventory
                 MessageBox.Show("Copy/Paste is disabled in this field.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+        public bool CartIsEmpty { get; set; }
 
         private void btnProceed_Click(object sender, EventArgs e)
         {
@@ -109,51 +111,77 @@ namespace Sales_Inventory
             RedeemedPoints = 0;
             PointsCoverTotal = false;
 
-            // 1. Check kung naka-check ang checkbox
+            // 🛑 Prevent redeeming if cart is empty
+            if (CartIsEmpty)
+            {
+                MessageBox.Show("You cannot redeem points because the cart is empty.",
+                                "Empty Cart", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 1️⃣ Check kung naka-check ang checkbox
             if (!chkRedeem.Checked)
             {
                 MessageBox.Show("Please check Redeem first if you want to use points.",
-                                "Redeem Required",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
-                return; // ← hindi magpro-proceed
+                                "Redeem Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
-            // 2. Check kung may input sa textbox
+            // 2️⃣ Check kung may input sa textbox
             if (string.IsNullOrWhiteSpace(txtPointsToRedeem.Text))
             {
                 MessageBox.Show("Please enter how many points you want to redeem.",
-                                "Input Required",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
-                return; // ← hindi rin magpro-proceed
-            }
-
-            // 3. Convert to decimal safely
-            if (!decimal.TryParse(txtPointsToRedeem.Text, out decimal toRedeem))
-            {
-                MessageBox.Show("Invalid points value.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                "Input Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // 4. Check kung sapat ang points ng member
+            // 3️⃣ Clean input
+            string cleanText = txtPointsToRedeem.Text.Replace("₱", "").Replace(",", "").Trim();
+
+            if (!decimal.TryParse(cleanText, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out decimal toRedeem))
+            {
+                MessageBox.Show("Invalid points value. Please enter a valid number (e.g. 100 or 100.50).",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 4️⃣ Check kung sapat ang points ng member
             if (toRedeem > currentPoints)
             {
-                MessageBox.Show("Insufficient points!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Insufficient points!",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
+            // 5️⃣ Check kung valid total
+            if (TotalAmount <= 0)
+            {
+                MessageBox.Show("Invalid total amount. Please check the POS total.",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // 6️⃣ Prevent redeeming more than total amount
+            if (toRedeem > TotalAmount)
+            {
+                MessageBox.Show($"You cannot redeem more points than the total amount.\n\n" +
+                                $"Total: ₱{TotalAmount:N2}\nPoints entered: {toRedeem:N2}",
+                                "Invalid Redemption", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 7️⃣ Valid → assign values
             RedeemedPoints = toRedeem;
 
-            // 5. Kung points >= total ng cart → auto-pay
-            if (toRedeem >= TotalAmount)
+            // If fully covered by points
+            if (toRedeem == TotalAmount)
                 PointsCoverTotal = true;
 
-            // Success → pwede nang bumalik sa POS
+            // ✅ Close cleanly
             this.DialogResult = DialogResult.OK;
             this.Close();
-
         }
+
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
