@@ -23,7 +23,10 @@ namespace Sales_Inventory
           StyleDataGridView(dgvDeliveryDetails);
             StyleDataGridView(dgvDeliveries);
             LoadDeliveries();
-          
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
+
+            LoadDeliveries(fromDate, toDate); // Load main deliveries
 
         }
         private void StyleDataGridView(DataGridView dgv)
@@ -151,6 +154,54 @@ namespace Sales_Inventory
             }
         }
 
+        // 🔹 1. Load lahat ng deliveries between date range
+        private void LoadDeliveries(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                ConnectionModule.openCon();
+
+                string query = @"
+            SELECT 
+                d.idDelivery, 
+                d.DeliveryDate, 
+                d.DeliveryReceipt, 
+                s.SupplierName, 
+                d.DeliveryStatus,
+                d.ReceivedBy
+            FROM Delivery d
+            INNER JOIN Supplier s ON d.SupplierID = s.SupplierID
+            WHERE d.DeliveryDate BETWEEN @From AND @To
+            ORDER BY d.DeliveryDate DESC";
+
+                using (MySqlCommand cmd = new MySqlCommand(query, ConnectionModule.con))
+                {
+                    cmd.Parameters.AddWithValue("@From", fromDate);
+                    cmd.Parameters.AddWithValue("@To", toDate);
+
+                    using (MySqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        DataTable dt = new DataTable();
+                        dt.Load(reader);
+                        dgvDeliveries.DataSource = dt;
+                    }
+                }
+
+                if (dgvDeliveries.Columns.Contains("idDelivery"))
+                    dgvDeliveries.Columns["idDelivery"].Visible = false;
+
+                StyleDataGridView(dgvDeliveries);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading deliveries: " + ex.Message);
+            }
+            finally
+            {
+                ConnectionModule.closeCon();
+            }
+        }
+
 
 
         private void UC_DeliveryDetails_Load(object sender, EventArgs e)
@@ -166,62 +217,80 @@ namespace Sales_Inventory
          
             
         }
+        // 🔹 Track the last clicked row index (para sa toggle)
+        private int lastSelectedRowIndex = -1;
 
         private void dgvDeliveries_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
+                // Check if user clicked the same row again
+                if (e.RowIndex == lastSelectedRowIndex)
+                {
+                    // Unselect everything
+                    dgvDeliveries.ClearSelection();
+                    dgvDeliveryDetails.DataSource = null; // optional: clear details table
+                    lastSelectedRowIndex = -1; // reset tracker
+                    return;
+                }
+
+                // Otherwise, select new row normally
+                dgvDeliveries.ClearSelection();
+                dgvDeliveries.Rows[e.RowIndex].Selected = true;
+
                 int deliveryID = Convert.ToInt32(dgvDeliveries.Rows[e.RowIndex].Cells["idDelivery"].Value);
                 LoadDeliveryDetails(deliveryID);
+
+                // Save the currently selected row
+                lastSelectedRowIndex = e.RowIndex;
             }
         }
 
         private void dtDate_ValueChanged(object sender, EventArgs e)
         {
-            LoadDeliveries(dtDate.Value);
+           // LoadDeliveries(dtDate.Value);
         }
 
         private void txtSearchDelivery_TextChanged(object sender, EventArgs e)
         {
             string searchText = txtSearchDelivery.Text.Trim();
-            DateTime? selectedDate = dtDate.Checked ? (DateTime?)dtDate.Value.Date : null;
+            DateTime fromDate = dtpFrom.Value.Date;  // Start date
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End date (23:59:59)
 
             try
             {
                 using (MySqlConnection con = new MySqlConnection("server=localhost;user id=root;password=;database=sales_inventory"))
                 {
                     con.Open();
+
                     string query = @"
-                SELECT d.idDelivery, 
-                       d.DeliveryDate, 
-                       d.DeliveryReceipt, 
-                       s.SupplierName, 
-                       d.DeliveryStatus,
-                       d.ReceivedBy
+                SELECT 
+                    d.idDelivery, 
+                    d.DeliveryDate, 
+                    d.DeliveryReceipt, 
+                    s.SupplierName, 
+                    d.DeliveryStatus,
+                    d.ReceivedBy
                 FROM Delivery d
                 INNER JOIN Supplier s ON d.SupplierID = s.SupplierID
                 WHERE (d.DeliveryReceipt LIKE @search 
                        OR s.SupplierName LIKE @search 
                        OR d.DeliveryStatus LIKE @search 
-                       OR d.ReceivedBy LIKE @search)";
+                       OR d.ReceivedBy LIKE @search)
+                  AND (d.DeliveryDate BETWEEN @From AND @To)
+                ORDER BY d.DeliveryDate DESC";
 
-                    // Add date filter if selected
-                    if (selectedDate.HasValue)
+                    using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
-                        query += " AND DATE(d.DeliveryDate) = @DeliveryDate";
+                        cmd.Parameters.AddWithValue("@search", "%" + searchText + "%");
+                        cmd.Parameters.AddWithValue("@From", fromDate);
+                        cmd.Parameters.AddWithValue("@To", toDate);
+
+                        MySqlDataAdapter da = new MySqlDataAdapter(cmd);
+                        DataTable dt = new DataTable();
+                        da.Fill(dt);
+                        dgvDeliveries.DataSource = dt;
                     }
-
-                    query += " ORDER BY d.DeliveryDate DESC";
-
-                    MySqlCommand cmd = new MySqlCommand(query, con);
-                    cmd.Parameters.AddWithValue("@search", "%" + searchText + "%");
-                    if (selectedDate.HasValue)
-                        cmd.Parameters.AddWithValue("@DeliveryDate", selectedDate.Value);
-
-                    MySqlDataAdapter da = new MySqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    dgvDeliveries.DataSource = dt;
 
                     // Hide ID column
                     if (dgvDeliveries.Columns.Contains("idDelivery"))
@@ -233,6 +302,7 @@ namespace Sales_Inventory
                 MessageBox.Show("Error searching deliveries: " + ex.Message);
             }
         }
+
 
         private void btnPrintPDF_Click(object sender, EventArgs e)
         {
@@ -346,6 +416,32 @@ namespace Sales_Inventory
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void dtpFrom_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpFrom_ValueChanged_1(object sender, EventArgs e)
+        {
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
+
+            LoadDeliveries(fromDate, toDate); // Load main deliveries
+        }
+
+        private void dtpTo_ValueChanged(object sender, EventArgs e)
+        {
+            DateTime fromDate = dtpFrom.Value.Date; // Start of selected day
+            DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // End of selected day (23:59:59)
+
+            LoadDeliveries(fromDate, toDate); // Load main deliveries
+        }
+
+        private void dgvDeliveries_Click(object sender, EventArgs e)
         {
 
         }

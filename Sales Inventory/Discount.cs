@@ -55,6 +55,19 @@ namespace Sales_Inventory
             string discountID = txtIDNumber.Text.Trim();
             string discountType = cmbDiscountType.Text.Trim();
 
+            // ✅ STEP 0: Check if ID number is at least 4 digits
+            if (!discountID.All(char.IsDigit))
+            {
+                MessageBox.Show("ID Number must contain digits only.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (discountID.Length < 4)
+            {
+                MessageBox.Show("ID Number must be at least 4 digits long.", "Invalid ID", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             try
             {
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
@@ -84,7 +97,7 @@ namespace Sales_Inventory
                     }
 
                     // ⚡ STEP 2: Prevent using same 4-digit ending as previous IDs
-                    string last4 = discountID.Length >= 4 ? discountID.Substring(discountID.Length - 4) : discountID;
+                    string last4 = discountID.Substring(discountID.Length - 4);
 
                     string last4Query = @"
                 SELECT COUNT(*) 

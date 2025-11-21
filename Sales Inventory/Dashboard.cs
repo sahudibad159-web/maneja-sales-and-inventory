@@ -153,11 +153,25 @@ namespace Sales_Inventory
 
         private void btnLogOut_Click(object sender, EventArgs e)
         {
+            // 🟡 1. Ask first before doing anything
+            DialogResult result = MessageBox.Show(
+                "Are you sure you want to Log Out?",
+                "Confirm Log Out",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+
+            if (result != DialogResult.Yes)
+            {
+                // User cancelled logout
+                return;
+            }
+
             try
             {
                 ConnectionModule.openCon();
 
-                // ✅ Update the last login log for this user
+                // ✅ 2. Update the last login log for this user
                 string updateLogQuery = @"
             UPDATE login_logs
             SET LogoutTime = NOW(),
@@ -173,22 +187,13 @@ namespace Sales_Inventory
                     cmd.ExecuteNonQuery();
                 }
 
-                // ✅ Optional: Insert Audit Trail for logout
+                // ✅ 3. Optional: Insert Audit Trail for logout
                 ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
-                DialogResult result = MessageBox.Show(
-              "Are you sure you want to Log Out?",
-              "Confirm Log Out",
-              MessageBoxButtons.YesNo,
-              MessageBoxIcon.Question
-          );
 
-                if (result == DialogResult.Yes)
-                {
-                    // ✅ Close the current form and go back to Login
-                    Loginform login = new Loginform();
-                    login.Show();
-                    this.Close();
-                }
+                // ✅ 4. Go back to Login
+                Loginform login = new Loginform();
+                login.Show();
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -199,6 +204,7 @@ namespace Sales_Inventory
                 ConnectionModule.closeCon();
             }
         }
+
 
         private void guna2Button6_Click_1(object sender, EventArgs e)
         {

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace Sales_Inventory
 {
+
     public partial class PasswordPromptForm : Form
     {
         public string EnteredPassword { get; private set; }

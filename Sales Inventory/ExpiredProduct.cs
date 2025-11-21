@@ -28,7 +28,8 @@ namespace Sales_Inventory
                         e.idExpired,
                         e.ProductName,
                         e.Quantity,
-                        e.ExpirationDate
+                        e.ExpirationDate,
+                        e.Description
                      FROM expired_products e
                      ORDER BY e.ExpirationDate ASC";
 

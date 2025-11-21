@@ -107,7 +107,7 @@
             this.btnVoidItem.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(99)))), ((int)(((byte)(99)))));
             this.btnVoidItem.Font = new System.Drawing.Font("Century Gothic", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnVoidItem.ForeColor = System.Drawing.Color.White;
-            this.btnVoidItem.Location = new System.Drawing.Point(301, 766);
+            this.btnVoidItem.Location = new System.Drawing.Point(331, 766);
             this.btnVoidItem.Name = "btnVoidItem";
             this.btnVoidItem.Size = new System.Drawing.Size(180, 45);
             this.btnVoidItem.TabIndex = 4;
@@ -127,7 +127,7 @@
             this.btnVoidTransaction.ForeColor = System.Drawing.Color.White;
             this.btnVoidTransaction.Location = new System.Drawing.Point(23, 766);
             this.btnVoidTransaction.Name = "btnVoidTransaction";
-            this.btnVoidTransaction.Size = new System.Drawing.Size(220, 45);
+            this.btnVoidTransaction.Size = new System.Drawing.Size(239, 45);
             this.btnVoidTransaction.TabIndex = 3;
             this.btnVoidTransaction.Text = "VoidTransaction";
             this.btnVoidTransaction.Click += new System.EventHandler(this.btnVoidTransaction_Click);

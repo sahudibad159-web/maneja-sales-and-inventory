@@ -150,7 +150,7 @@ namespace Sales_Inventory
                     if (reader.Read())
                     {
                         inventorySeries.Points.AddXY("In Stock", reader.IsDBNull(0) ? 0 : reader.GetInt32(0));
-                        inventorySeries.Points.AddXY("Low Stock", reader.IsDBNull(1) ? 0 : reader.GetInt32(1));
+                        inventorySeries.Points.AddXY("Critical Stock", reader.IsDBNull(1) ? 0 : reader.GetInt32(1));
                         inventorySeries.Points.AddXY("Expired", reader.IsDBNull(2) ? 0 : reader.GetInt32(2));
                         inventorySeries.Points.AddXY("Nearly Expired", reader.IsDBNull(3) ? 0 : reader.GetInt32(3));
                     }

@@ -31,13 +31,15 @@
             this.dgvDeliveryDetails = new System.Windows.Forms.DataGridView();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
-            this.dtDate = new Guna.UI2.WinForms.Guna2DateTimePicker();
             this.txtSearchDelivery = new Guna.UI2.WinForms.Guna2TextBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.btnPrintPDF = new Guna.UI2.WinForms.Guna2Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.dgvDeliveries = new System.Windows.Forms.DataGridView();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.dtpTo = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.dtpFrom = new Guna.UI2.WinForms.Guna2DateTimePicker();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeliveryDetails)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeliveries)).BeginInit();
@@ -77,22 +79,6 @@
             this.label1.TabIndex = 79;
             this.label1.Text = "Search Delivery:";
             // 
-            // dtDate
-            // 
-            this.dtDate.BackColor = System.Drawing.Color.White;
-            this.dtDate.Checked = true;
-            this.dtDate.FillColor = System.Drawing.SystemColors.HighlightText;
-            this.dtDate.Font = new System.Drawing.Font("Century Gothic", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtDate.Location = new System.Drawing.Point(569, 10);
-            this.dtDate.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
-            this.dtDate.MinDate = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
-            this.dtDate.Name = "dtDate";
-            this.dtDate.Size = new System.Drawing.Size(215, 42);
-            this.dtDate.TabIndex = 80;
-            this.dtDate.Value = new System.DateTime(2025, 10, 12, 17, 2, 57, 63);
-            this.dtDate.ValueChanged += new System.EventHandler(this.dtDate_ValueChanged);
-            // 
             // txtSearchDelivery
             // 
             this.txtSearchDelivery.BorderColor = System.Drawing.Color.Black;
@@ -117,16 +103,6 @@
             this.txtSearchDelivery.TabIndex = 81;
             this.txtSearchDelivery.TextChanged += new System.EventHandler(this.txtSearchDelivery_TextChanged);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Century Gothic", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(471, 19);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(74, 27);
-            this.label2.TabIndex = 82;
-            this.label2.Text = "Date:";
-            // 
             // btnPrintPDF
             // 
             this.btnPrintPDF.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -148,12 +124,14 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label3);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Controls.Add(this.dtpTo);
+            this.panel1.Controls.Add(this.dtpFrom);
             this.panel1.Controls.Add(this.dgvDeliveries);
             this.panel1.Controls.Add(this.btnPrintPDF);
-            this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.txtSearchDelivery);
-            this.panel1.Controls.Add(this.dtDate);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
@@ -176,6 +154,7 @@
             this.dgvDeliveries.TabIndex = 0;
             this.dgvDeliveries.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDeliveries_CellClick);
             this.dgvDeliveries.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvDeliveryDetails_CellDoubleClick);
+            this.dgvDeliveries.Click += new System.EventHandler(this.dgvDeliveries_Click);
             // 
             // panel3
             // 
@@ -185,6 +164,62 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(1254, 340);
             this.panel3.TabIndex = 85;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(767, 20);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(37, 23);
+            this.label3.TabIndex = 91;
+            this.label3.Text = "To:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(451, 20);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(64, 23);
+            this.label2.TabIndex = 88;
+            this.label2.Text = "From:";
+            // 
+            // dtpTo
+            // 
+            this.dtpTo.BorderRadius = 11;
+            this.dtpTo.BorderThickness = 2;
+            this.dtpTo.Checked = true;
+            this.dtpTo.FillColor = System.Drawing.Color.White;
+            this.dtpTo.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtpTo.ForeColor = System.Drawing.Color.Black;
+            this.dtpTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpTo.Location = new System.Drawing.Point(810, 19);
+            this.dtpTo.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
+            this.dtpTo.MinDate = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
+            this.dtpTo.Name = "dtpTo";
+            this.dtpTo.Size = new System.Drawing.Size(229, 36);
+            this.dtpTo.TabIndex = 90;
+            this.dtpTo.Value = new System.DateTime(2025, 10, 21, 0, 0, 0, 0);
+            this.dtpTo.ValueChanged += new System.EventHandler(this.dtpTo_ValueChanged);
+            // 
+            // dtpFrom
+            // 
+            this.dtpFrom.BorderRadius = 11;
+            this.dtpFrom.BorderThickness = 2;
+            this.dtpFrom.Checked = true;
+            this.dtpFrom.FillColor = System.Drawing.Color.White;
+            this.dtpFrom.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtpFrom.ForeColor = System.Drawing.Color.Black;
+            this.dtpFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpFrom.Location = new System.Drawing.Point(521, 20);
+            this.dtpFrom.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
+            this.dtpFrom.MinDate = new System.DateTime(1753, 1, 1, 0, 0, 0, 0);
+            this.dtpFrom.Name = "dtpFrom";
+            this.dtpFrom.Size = new System.Drawing.Size(229, 36);
+            this.dtpFrom.TabIndex = 89;
+            this.dtpFrom.Value = new System.DateTime(2025, 10, 21, 0, 0, 0, 0);
+            this.dtpFrom.ValueChanged += new System.EventHandler(this.dtpFrom_ValueChanged_1);
             // 
             // UC_DeliveryDetails
             // 
@@ -209,12 +244,14 @@
         private System.Windows.Forms.DataGridView dgvDeliveryDetails;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label1;
-        private Guna.UI2.WinForms.Guna2DateTimePicker dtDate;
         private Guna.UI2.WinForms.Guna2TextBox txtSearchDelivery;
-        private System.Windows.Forms.Label label2;
         private Guna.UI2.WinForms.Guna2Button btnPrintPDF;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.DataGridView dgvDeliveries;
         private System.Windows.Forms.Panel panel3;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpTo;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpFrom;
     }
 }

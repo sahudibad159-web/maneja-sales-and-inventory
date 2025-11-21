@@ -45,42 +45,10 @@ namespace Sales_Inventory
                 // 🔐 Hash password
                 string hashedPassword = HashPassword(password);
 
-                //// 🔹 Check failed attempts in last 3 mins
-                //string attemptQuery = @"SELECT LoginTime 
-                //        FROM login_logs
-                //        WHERE Username=@user 
-                //        AND Status='Failed Attempt'
-                //        AND LoginTime > (NOW() - INTERVAL 1 SECOND)
-                //        ORDER BY LoginTime DESC
-                //        LIMIT 1";
-                //using (MySqlCommand attemptCmd = new MySqlCommand(attemptQuery, ConnectionModule.con))
-                //{
-                //    attemptCmd.Parameters.Add("@user", MySqlDbType.VarChar, 50).Value = username;
-                //    object lastAttemptObj = attemptCmd.ExecuteScalar();
-
-                //    if (lastAttemptObj != null)
-                //    {
-                //        DateTime lastAttempt = Convert.ToDateTime(lastAttemptObj);
-                //        TimeSpan elapsed = DateTime.Now - lastAttempt;
-                //        double remainingSeconds = Math.Max(0, 180 - elapsed.TotalSeconds); // 3 minutes = 180 seconds
-
-                //        int minutesLeft = (int)(remainingSeconds / 60);
-                //        int secondsLeft = (int)(remainingSeconds % 60);
-
-                //        MessageBox.Show(
-                //            $"Too many failed login attempts. Please wait {minutesLeft} min {secondsLeft} sec and try again.",
-                //            "Login Blocked",
-                //            MessageBoxButtons.OK,
-                //            MessageBoxIcon.Warning
-                //        );
-                //        return;
-                //    }
-                //}
-
-                // 🔹 Check credentials
+                // 🔹 Check credentials (case-sensitive username)
                 string query = @"SELECT Role, FullName 
                          FROM Users 
-                         WHERE Username=@username 
+                         WHERE BINARY Username=@username 
                          AND PasswordHash=@password 
                          AND Status='Active' 
                          LIMIT 1";
@@ -105,7 +73,7 @@ namespace Sales_Inventory
                             ConnectionModule.Session.Role = role;
                             ConnectionModule.Session.ShiftStart = DateTime.Now;
 
-                            reader.Close(); // close before logging
+                            reader.Close();
 
                             // Insert successful login log
                             string logQuery = @"INSERT INTO login_logs (Username, Role, LoginTime, Status)
@@ -124,11 +92,11 @@ namespace Sales_Inventory
                         }
                         else
                         {
-                            reader.Close(); // close before logging
+                            reader.Close();
 
                             // Log failed attempt
                             string logFailQuery = @"INSERT INTO login_logs (Username, Role, LoginTime, Status)
-                                            VALUES (@user, 'Unknown', NOW(), 'Failed Attempt')";
+                                             VALUES (@user, 'Unknown', NOW(), 'Failed Attempt')";
                             using (MySqlCommand failLogCmd = new MySqlCommand(logFailQuery, ConnectionModule.con))
                             {
                                 failLogCmd.Parameters.Add("@user", MySqlDbType.VarChar, 50).Value = username;

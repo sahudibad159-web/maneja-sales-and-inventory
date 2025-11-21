@@ -170,7 +170,7 @@ namespace Sales_Inventory
 
                         if (daysRemaining <= 0) // Expired
                         {
-                            InsertExpiredProduct(con, productID, idDetail, productName, qtyDelivered, expDate);
+                            InsertExpiredProduct(con, productID, idDetail, productName, descriptionName, qtyDelivered, expDate);
                             ReduceInventoryByExpiredBatch(con, productID, qtyDelivered);
                             UpdateDeliveryDetailStatus(con, idDetail, "Expired");
                             expiredCount++;
@@ -216,9 +216,11 @@ namespace Sales_Inventory
 
 
         // Insert or update expired product
-        private void InsertExpiredProduct(MySqlConnection con, int productID, int idDetail, string productName, int qty, DateTime expDate)
+        private void InsertExpiredProduct(MySqlConnection con, int productID, int idDetail, string productName, string descriptionName, int qty, DateTime expDate)
         {
-            string checkQuery = @"SELECT Quantity FROM expired_products WHERE idDetail=@idDetail AND ExpirationDate=@ExpirationDate";
+            string checkQuery = @"SELECT Quantity FROM expired_products 
+                          WHERE idDetail=@idDetail 
+                            AND DATE(ExpirationDate)=@ExpirationDate";
             object result = new MySqlCommand(checkQuery, con)
             {
                 Parameters =
@@ -230,12 +232,16 @@ namespace Sales_Inventory
 
             if (result != null)
             {
+                // 🧩 If existing record, update quantity and description (optional)
                 string updateQuery = @"UPDATE expired_products 
-                               SET Quantity = Quantity + @Quantity 
-                               WHERE idDetail=@idDetail AND ExpirationDate=@ExpirationDate";
+                               SET Quantity = Quantity + @Quantity,
+                                   Description = @Description
+                               WHERE idDetail=@idDetail 
+                                 AND DATE(ExpirationDate)=@ExpirationDate";
                 using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@Quantity", qty);
+                    cmd.Parameters.AddWithValue("@Description", descriptionName);
                     cmd.Parameters.AddWithValue("@idDetail", idDetail);
                     cmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
                     cmd.ExecuteNonQuery();
@@ -243,15 +249,17 @@ namespace Sales_Inventory
             }
             else
             {
+                // 🧩 If not existing, insert new record
                 string insertQuery = @"INSERT INTO expired_products
-                               (idInventory, idDetail, ProductName, Quantity, ExpirationDate)
+                               (idInventory, idDetail, ProductName, Description, Quantity, ExpirationDate)
                                VALUES ((SELECT idInventory FROM inventory WHERE ProductID=@ProductID LIMIT 1),
-                                       @idDetail, @ProductName, @Quantity, @ExpirationDate)";
+                                       @idDetail, @ProductName, @Description, @Quantity, @ExpirationDate)";
                 using (MySqlCommand cmd = new MySqlCommand(insertQuery, con))
                 {
                     cmd.Parameters.AddWithValue("@ProductID", productID);
                     cmd.Parameters.AddWithValue("@idDetail", idDetail);
                     cmd.Parameters.AddWithValue("@ProductName", productName);
+                    cmd.Parameters.AddWithValue("@Description", descriptionName);
                     cmd.Parameters.AddWithValue("@Quantity", qty);
                     cmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
                     cmd.ExecuteNonQuery();
@@ -259,34 +267,52 @@ namespace Sales_Inventory
             }
         }
 
+
         // Insert or update nearly expired product
-        private void InsertNearlyExpiredProduct(MySqlConnection con, int productID, int idDetail, string productName, string descriptionName,  int qty, DateTime expDate, int daysRemaining)
+        private void InsertNearlyExpiredProduct(
+      MySqlConnection con,
+      int productID,
+      int idDetail,
+      string productName,
+      string descriptionName,
+      int qty,
+      DateTime expDate,
+      int daysRemaining)
         {
-            // 1️⃣ Check kung existing na ang record (by ProductName + ExpirationDate)
-            string duplicateCheck = @"SELECT COUNT(*) FROM nearly_expired_products 
-                              WHERE ProductName=@ProductName 
-                                AND DATE(ExpirationDate)=@ExpirationDate";
+            // 1️⃣ Check kung existing na ang record (by ProductName + ExpirationDate + Description)
+            string duplicateCheck = @"
+        SELECT COUNT(*) 
+        FROM nearly_expired_products 
+        WHERE ProductName = @ProductName 
+          AND DATE(ExpirationDate) = @ExpirationDate
+          AND Description = @Description";
+
             using (MySqlCommand checkCmd = new MySqlCommand(duplicateCheck, con))
             {
                 checkCmd.Parameters.AddWithValue("@ProductName", productName);
                 checkCmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
+                checkCmd.Parameters.AddWithValue("@Description", descriptionName);
 
                 int count = Convert.ToInt32(checkCmd.ExecuteScalar());
 
                 if (count > 0)
                 {
                     // 2️⃣ Update existing record instead of inserting new one
-                    string updateQuery = @"UPDATE nearly_expired_products 
-                                   SET Quantity = @Quantity,
-                                       DaysRemaining = @DaysRemaining
-                                   WHERE ProductName=@ProductName 
-                                     AND DATE(ExpirationDate)=@ExpirationDate";
+                    string updateQuery = @"
+                UPDATE nearly_expired_products 
+                SET Quantity = @Quantity,
+                    DaysRemaining = @DaysRemaining
+                WHERE ProductName = @ProductName 
+                  AND DATE(ExpirationDate) = @ExpirationDate
+                  AND Description = @Description";
+
                     using (MySqlCommand cmd = new MySqlCommand(updateQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@Quantity", qty);
                         cmd.Parameters.AddWithValue("@DaysRemaining", daysRemaining);
                         cmd.Parameters.AddWithValue("@ProductName", productName);
                         cmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
+                        cmd.Parameters.AddWithValue("@Description", descriptionName);
                         cmd.ExecuteNonQuery();
                     }
                     return; // ✅ Done updating, no need to insert
@@ -294,23 +320,32 @@ namespace Sales_Inventory
             }
 
             // 3️⃣ If not existing yet → insert new
-            string insertQuery = @"INSERT INTO nearly_expired_products
-                           (idInventory, idDetail, ProductName, Quantity, ExpirationDate, DaysRemaining, Description)
-                           VALUES ((SELECT idInventory FROM inventory WHERE ProductID=@ProductID LIMIT 1),
-                                   @idDetail, @ProductName, @Quantity, @ExpirationDate, @DaysRemaining, @Description)";
+            string insertQuery = @"
+        INSERT INTO nearly_expired_products
+            (idInventory, idDetail, ProductName, Quantity, ExpirationDate, DaysRemaining, Description)
+        VALUES (
+            (SELECT idInventory FROM inventory WHERE ProductID = @ProductID LIMIT 1),
+            @idDetail, 
+            @ProductName, 
+            @Quantity, 
+            @ExpirationDate, 
+            @DaysRemaining, 
+            @Description)";
+
             using (MySqlCommand cmd = new MySqlCommand(insertQuery, con))
             {
                 cmd.Parameters.AddWithValue("@ProductID", productID);
                 cmd.Parameters.AddWithValue("@idDetail", idDetail);
-                cmd.Parameters.AddWithValue("@Description", descriptionName);
-
                 cmd.Parameters.AddWithValue("@ProductName", productName);
                 cmd.Parameters.AddWithValue("@Quantity", qty);
                 cmd.Parameters.AddWithValue("@ExpirationDate", expDate.Date);
                 cmd.Parameters.AddWithValue("@DaysRemaining", daysRemaining);
+                cmd.Parameters.AddWithValue("@Description", descriptionName);
+
                 cmd.ExecuteNonQuery();
             }
         }
+
 
 
 

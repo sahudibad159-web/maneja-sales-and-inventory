@@ -5,7 +5,9 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization; // make sure this is at the top of your file
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
@@ -13,7 +15,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using ContextMenu = System.Windows.Forms.ContextMenu;
 using TextBox = System.Windows.Forms.TextBox;
-using System.Globalization; // make sure this is at the top of your file
 
 namespace Sales_Inventory
 {
@@ -1310,27 +1311,27 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                         return;
                     }
 
-            if (frm.PointsCoverTotal)
-                {
-                    ProcessSaleWithPoints();
-                    ResetPOS();
-                    return;
-                }
-                else if (RedeemPoints > 0)
-                {
-                    decimal remainingTotal = currentTotal - RedeemPoints;
-                    if (remainingTotal < 0) remainingTotal = 0;
+                    if (frm.PointsCoverTotal)
+                    {
+                        ProcessSaleWithPoints();
+                        ResetPOS();
+                        return;
+                    }
+                    else if (RedeemPoints > 0)
+                    {
+                        decimal remainingTotal = currentTotal - RedeemPoints;
+                        if (remainingTotal < 0) remainingTotal = 0;
 
-                    txtRedeemedPoints.Text = RedeemPoints.ToString("N2");
-                    txtPoints.Text = RedeemPoints.ToString("N2");
-                    txtTotal.Text = remainingTotal.ToString("N2");
-                    netAmount = remainingTotal;
+                        txtRedeemedPoints.Text = RedeemPoints.ToString("N2");
+                        txtPoints.Text = RedeemPoints.ToString("N2");
+                        txtTotal.Text = remainingTotal.ToString("N2");
+                        netAmount = remainingTotal;
 
-                    txtMemberID.Enabled = false;
+                        txtMemberID.Enabled = false;
+                    }
                 }
             }
         }
-    }
         private void ResetPOS()
         {
             // Clear cart
@@ -1529,7 +1530,7 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                     e.FormattingApplied = true;
                 }
             }
-            }
+        }
 
         private void btnSave_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1610,7 +1611,8 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
 
                 // Header
                 string storeName = "MANEJA GROCERY STORE";
-                string storeAddress = "Menur St, Maharlika Village, Taguig City";
+                string storeAddress = "A22 A Reyes, New Lower Bicutan, Taguig City";
+             
 
                 int textWidth = (int)e.Graphics.MeasureString(storeName, fontTitle).Width;
                 e.Graphics.DrawString(storeName, fontTitle, brush, (paperWidth - textWidth) / 2, startY);
@@ -1627,6 +1629,9 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 e.Graphics.DrawString("Receipt #: " + saleId, fontBold, brush, marginLeft, startY); startY += lineHeight;
                 e.Graphics.DrawString("Cashier: " + ConnectionModule.Session.FullName, fontBody, brush, marginLeft, startY); startY += lineHeight;
                 e.Graphics.DrawString("Date: " + DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), fontBody, brush, marginLeft, startY); startY += lineHeight;
+                // 🕒 VALID UNTIL (15 hours from now)
+                DateTime validUntil = DateTime.Now.AddHours(15);
+                string validText = "Valid Until: " + validUntil.ToString("MM/dd/yyyy hh:mm tt");
 
                 e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
@@ -1673,6 +1678,12 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 startY += lineHeight;
 
                 e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
+
+                startY += lineHeight;
+               
+
+
+                e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
                 // Footer
@@ -1683,6 +1694,7 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
 
             printDoc.Print();
         }
+
 
 
 
@@ -1771,7 +1783,7 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 Brush brush = Brushes.Black;
 
                 // === STORE NAME ===
-                string storeName = "AYANG GROCERY STORE";
+                string storeName = "MANEJA GROCERY STORE";
                 int textWidth = (int)e.Graphics.MeasureString(storeName, fontBold).Width;
                 e.Graphics.DrawString(storeName, fontBold, brush, (paperWidth - textWidth) / 2, y);
                 y += 25;
@@ -1802,12 +1814,7 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 DrawTwoColumnText(e.Graphics, "GCASH:", "₱" + gcashSales.ToString("N2"), fontRegular, brush, marginLeft, marginRight, y); y += lineHeight;
                 DrawTwoColumnText(e.Graphics, "POINTS:", "₱" + pointsSales.ToString("N2"), fontRegular, brush, marginLeft, marginRight, y); y += lineHeight + 5;
 
-                //// === DISCOUNT BREAKDOWN ===
-                //e.Graphics.DrawString("=== DISCOUNT BREAKDOWN ===", fontRegular, brush, marginLeft, y); y += lineHeight;
-                //DrawTwoColumnText(e.Graphics, $"Senior ({seniorCount}):", "₱" + seniorDiscount.ToString("N2"),
-                //    fontRegular, brush, marginLeft, marginRight, y); y += lineHeight;
-                //DrawTwoColumnText(e.Graphics, $"PWD ({pwdCount}):", "₱" + pwdDiscount.ToString("N2"),
-                //    fontRegular, brush, marginLeft, marginRight, y); y += lineHeight + 5;
+              
 
                 e.Graphics.DrawString("------------------------------", fontRegular, brush, marginLeft, y); y += lineHeight;
                 string thanksMessage = "** THANK YOU FOR YOUR HARD WORK! **";
@@ -1961,26 +1968,77 @@ WHERE s.TransactionDate BETWEEN @start AND @end
             }
         }
 
+        // 🔐 Hash password using SHA256 (same as in registration)
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha = SHA256.Create())
+            {
+                byte[] bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+                StringBuilder builder = new StringBuilder();
+                foreach (byte b in bytes)
+                    builder.Append(b.ToString("x2"));
+                return builder.ToString();
+            }
+        }
+
         private void guna2Button3_Click(object sender, EventArgs e)
         {
 
-            // ✅ Prevent End Shift if there are items in dgvProduct
+            // ✅ 1. Prevent End Shift if there are items in dgvProduct
             if (dgvProduct.Rows.Count > 0)
             {
                 MessageBox.Show("Cannot end shift while there are still items in the product list. Please clear them first.",
                                 "End Shift Blocked", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return; // stop execution
+                return;
+            }
+            // 🔒 STEP 1: Ask for admin password confirmation (masked)
+            string enteredPassword = "";
+            using (var pwdForm = new PasswordPromptForm())
+            {
+                if (pwdForm.ShowDialog() == DialogResult.OK)
+                    enteredPassword = pwdForm.EnteredPassword;
             }
 
-            string cashier = ConnectionModule.Session.FullName;
-            DateTime shiftStartTime = ConnectionModule.Session.ShiftStart;
-            DateTime shiftEndTime = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(enteredPassword))
+            {
+                MessageBox.Show("Admin password is required to proceed.",
+                    "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+
 
             try
             {
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
                 {
                     con.Open();
+
+                    // 🔐 3. Hash the entered password using SHA256 (your existing method)
+                    string hashedPassword = HashPassword(enteredPassword);
+
+                    // 🔹 4. Verify admin credentials
+                    string verifyQuery = @"SELECT COUNT(*) FROM Users
+                                   WHERE Role='Admin' AND PasswordHash=@PasswordHash AND Status='Active'";
+                    using (MySqlCommand verifyCmd = new MySqlCommand(verifyQuery, con))
+                    {
+                        verifyCmd.Parameters.Add("@PasswordHash", MySqlDbType.VarChar, 64).Value = hashedPassword;
+                        bool isAdminValid = Convert.ToInt32(verifyCmd.ExecuteScalar()) > 0;
+
+                        if (!isAdminValid)
+                        {
+                            MessageBox.Show("Invalid admin password. You cannot end shift.",
+                                            "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+
+                    // ✅ 5. Admin verified – continue with your existing End Shift logic
+                    string cashier = ConnectionModule.Session.FullName;
+                    DateTime shiftStartTime = ConnectionModule.Session.ShiftStart;
+                    DateTime shiftEndTime = DateTime.Now;
+
+
 
                     // 🔹 GET SHIFT SUMMARY (voided sales excluded from totals)
                     string query = @"
@@ -2145,16 +2203,14 @@ VALUES (@u, @s, @e, @ts, @td, @v, @n, @cash, @gcash, @points, @senior, @pwd)
                     loginForm.Show();
                     this.Close();
                     // 🔹 Reset shift start for next login
-                 //   ConnectionModule.Session.ShiftStart = DateTime.Now;
+                    //   ConnectionModule.Session.ShiftStart = DateTime.Now;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error ending shift: " + ex.Message);
+
             }
         }
-
-
-
     }
 }

@@ -320,6 +320,7 @@ namespace Sales_Inventory
 
 
             // 🟨 VALIDATION: Check if transaction is older than 1 day
+            // 🟨 VALIDATION: Check if transaction is older than 15 hours
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
             {
                 con.Open();
@@ -331,21 +332,22 @@ namespace Sales_Inventory
 
                     if (result != null && DateTime.TryParse(result.ToString(), out DateTime transDate))
                     {
-                        if ((DateTime.Now - transDate).TotalDays > 7)
+                        // ✅ Check if transaction is older than 15 hours
+                        if ((DateTime.Now - transDate).TotalHours > 15)
                         {
                             MessageBox.Show(
-                                "This transaction is more than 7 day old and can no longer be voided.",
+                                "This transaction is more than 15 hours old and can no longer be voided.",
                                 "Void Not Allowed",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error
                             );
                             return;
                         }
-
                     }
                 }
             }
-        
+
+
             // 🧩 Continue your existing "already voided" check
             bool isVoided = false;
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
@@ -556,6 +558,7 @@ namespace Sales_Inventory
                 ev.Graphics.DrawString($"Date: {DateTime.Now}", font, Brushes.Black, 10, y);
                 y += 20;
                 ev.Graphics.DrawString("Voided by: " + ConnectionModule.Session.FullName, font, Brushes.Black, 10, y);
+
             };
 
             pd.Print();
@@ -588,7 +591,7 @@ namespace Sales_Inventory
             long saleDetailId = Convert.ToInt64(dgvTransactionItems.CurrentRow.Cells["SaleDetailID"].Value);
             long saleId = Convert.ToInt64(dgvTransactionItems.CurrentRow.Cells["SaleID"].Value);
 
-            // 🟨 VALIDATION: Check if transaction is older than 1 day
+            // 🟨 VALIDATION: Check if transaction is older than 15 hours
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
             {
                 con.Open();
@@ -600,10 +603,11 @@ namespace Sales_Inventory
 
                     if (result != null && DateTime.TryParse(result.ToString(), out DateTime transDate))
                     {
-                        if ((DateTime.Now - transDate).TotalDays > 7)
+                        // ✅ Check if transaction is older than 15 hours
+                        if ((DateTime.Now - transDate).TotalHours > 15)
                         {
                             MessageBox.Show(
-                                "This transaction is more than 7 day old and can no longer be voided.",
+                                "This transaction is more than 15 hours old and can no longer be voided.",
                                 "Void Not Allowed",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error

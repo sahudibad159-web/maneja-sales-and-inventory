@@ -73,7 +73,7 @@
             this.dgvSaleDetails.AllowUserToResizeColumns = false;
             this.dgvSaleDetails.AllowUserToResizeRows = false;
             this.dgvSaleDetails.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvSaleDetails.Location = new System.Drawing.Point(35, 99);
+            this.dgvSaleDetails.Location = new System.Drawing.Point(30, 128);
             this.dgvSaleDetails.Name = "dgvSaleDetails";
             this.dgvSaleDetails.ReadOnly = true;
             this.dgvSaleDetails.RowHeadersWidth = 51;
