@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.Globalization;
 namespace Sales_Inventory
 {
     public partial class UC_Delivery : UserControl
@@ -436,18 +436,47 @@ namespace Sales_Inventory
 
 
 
-
         private void CalculateTotalCost()
         {
-            if (decimal.TryParse(txtCostPerItem.Text, out decimal cost) &&
-                int.TryParse(txtQtyDelivered.Text, out int qty))
+            try
             {
-                decimal total = cost * qty;
-                txtTotalCost.Text = total.ToString("N2"); // format 2 decimal places
+                // Use invariant culture to allow dot as decimal separator
+                string costText = txtCostPerItem.Text.Trim();
+                string qtyText = txtQtyDelivered.Text.Trim();
+
+                if (string.IsNullOrEmpty(costText) || string.IsNullOrEmpty(qtyText))
+                {
+                    txtTotalCost.Text = "0.00";
+                    return;
+                }
+
+                if (decimal.TryParse(costText, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal cost) &&
+                    int.TryParse(qtyText, out int qty))
+                {
+                    // Safe multiply with checked block to catch overflow
+                    decimal total = 0;
+                    try
+                    {
+                        total = checked(cost * qty);
+                    }
+                    catch (OverflowException)
+                    {
+                        MessageBox.Show("The calculated total is too large.", "Overflow Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtTotalCost.Text = "0.00";
+                        return;
+                    }
+
+                    txtTotalCost.Text = total.ToString("N2"); // format 2 decimal places
+                }
+                else
+                {
+                    txtTotalCost.Text = "0.00"; // invalid input
+                }
             }
-            else
+            catch (Exception ex)
             {
-                txtTotalCost.Text = "0.00"; // kung invalid input
+                MessageBox.Show("Error calculating total cost: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtTotalCost.Text = "0.00"; // ensure textbox is reset
             }
         }
         private void txtCostPerItem_TextChanged(object sender, EventArgs e)

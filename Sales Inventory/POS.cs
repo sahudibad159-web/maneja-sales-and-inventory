@@ -2245,7 +2245,7 @@ LIMIT 1";
                         }
 
                         // ✅ Optional: Insert Audit Trail for logout
-                        ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
+                      //  ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
                     }
                     catch (Exception ex)
                     {

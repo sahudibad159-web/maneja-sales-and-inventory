@@ -82,19 +82,19 @@
             this.Remove = new System.Windows.Forms.Label();
             this.AddItem = new System.Windows.Forms.Label();
             this.Edit = new System.Windows.Forms.Label();
-            this.PAdd = new System.Windows.Forms.PictureBox();
-            this.PictureBox5 = new System.Windows.Forms.PictureBox();
-            this.PictureBox4 = new System.Windows.Forms.PictureBox();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.PictureBox4 = new System.Windows.Forms.PictureBox();
+            this.PAdd = new System.Windows.Forms.PictureBox();
+            this.PictureBox5 = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeliveries)).BeginInit();
             this.panel2.SuspendLayout();
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PictureBox4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PAdd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox5)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PictureBox4)).BeginInit();
-            this.panel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -446,6 +446,7 @@
             this.txtQtyOrderd.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.txtQtyOrderd.Location = new System.Drawing.Point(665, 127);
             this.txtQtyOrderd.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtQtyOrderd.MaxLength = 10;
             this.txtQtyOrderd.Name = "txtQtyOrderd";
             this.txtQtyOrderd.PlaceholderText = "";
             this.txtQtyOrderd.SelectedText = "";
@@ -469,6 +470,7 @@
             this.txtQtyDelivered.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.txtQtyDelivered.Location = new System.Drawing.Point(665, 178);
             this.txtQtyDelivered.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtQtyDelivered.MaxLength = 8;
             this.txtQtyDelivered.Name = "txtQtyDelivered";
             this.txtQtyDelivered.PlaceholderText = "";
             this.txtQtyDelivered.SelectedText = "";
@@ -854,36 +856,6 @@
             this.Edit.Text = "Edit Item";
             this.Edit.Click += new System.EventHandler(this.Edit_Click);
             // 
-            // PAdd
-            // 
-            this.PAdd.Image = global::Sales_Inventory.Properties.Resources.save_file;
-            this.PAdd.Location = new System.Drawing.Point(0, 6);
-            this.PAdd.Name = "PAdd";
-            this.PAdd.Size = new System.Drawing.Size(60, 38);
-            this.PAdd.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.PAdd.TabIndex = 269;
-            this.PAdd.TabStop = false;
-            // 
-            // PictureBox5
-            // 
-            this.PictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("PictureBox5.Image")));
-            this.PictureBox5.Location = new System.Drawing.Point(390, 10);
-            this.PictureBox5.Name = "PictureBox5";
-            this.PictureBox5.Size = new System.Drawing.Size(60, 34);
-            this.PictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.PictureBox5.TabIndex = 271;
-            this.PictureBox5.TabStop = false;
-            // 
-            // PictureBox4
-            // 
-            this.PictureBox4.Image = global::Sales_Inventory.Properties.Resources.edit;
-            this.PictureBox4.Location = new System.Drawing.Point(194, 10);
-            this.PictureBox4.Name = "PictureBox4";
-            this.PictureBox4.Size = new System.Drawing.Size(60, 34);
-            this.PictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.PictureBox4.TabIndex = 270;
-            this.PictureBox4.TabStop = false;
-            // 
             // panel4
             // 
             this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(99)))), ((int)(((byte)(99)))));
@@ -908,6 +880,36 @@
             this.panel5.Size = new System.Drawing.Size(1526, 50);
             this.panel5.TabIndex = 275;
             // 
+            // PictureBox4
+            // 
+            this.PictureBox4.Image = global::Sales_Inventory.Properties.Resources.edit;
+            this.PictureBox4.Location = new System.Drawing.Point(194, 10);
+            this.PictureBox4.Name = "PictureBox4";
+            this.PictureBox4.Size = new System.Drawing.Size(60, 34);
+            this.PictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.PictureBox4.TabIndex = 270;
+            this.PictureBox4.TabStop = false;
+            // 
+            // PAdd
+            // 
+            this.PAdd.Image = global::Sales_Inventory.Properties.Resources.save_file;
+            this.PAdd.Location = new System.Drawing.Point(0, 6);
+            this.PAdd.Name = "PAdd";
+            this.PAdd.Size = new System.Drawing.Size(60, 38);
+            this.PAdd.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.PAdd.TabIndex = 269;
+            this.PAdd.TabStop = false;
+            // 
+            // PictureBox5
+            // 
+            this.PictureBox5.Image = ((System.Drawing.Image)(resources.GetObject("PictureBox5.Image")));
+            this.PictureBox5.Location = new System.Drawing.Point(390, 10);
+            this.PictureBox5.Name = "PictureBox5";
+            this.PictureBox5.Size = new System.Drawing.Size(60, 34);
+            this.PictureBox5.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.PictureBox5.TabIndex = 271;
+            this.PictureBox5.TabStop = false;
+            // 
             // UC_Delivery
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -924,11 +926,11 @@
             this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDeliveries)).EndInit();
             this.panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.PAdd)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PictureBox5)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PictureBox4)).EndInit();
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PictureBox4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PAdd)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PictureBox5)).EndInit();
             this.ResumeLayout(false);
 
         }
