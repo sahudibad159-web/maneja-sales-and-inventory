@@ -20,7 +20,9 @@ namespace Sales_Inventory
         {
             InitializeComponent();
             HookTextBoxEvents();
+            txtPassword.UseSystemPasswordChar = true;
             userRole = role;
+
 
         }
         private void HookTextBoxEvents()
@@ -255,6 +257,11 @@ namespace Sales_Inventory
         private void AdminRegistrationcs_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
+        {
+            txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
     }
 }

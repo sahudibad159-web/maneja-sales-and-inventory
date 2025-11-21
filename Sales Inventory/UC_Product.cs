@@ -361,13 +361,27 @@ namespace Sales_Inventory
         // Handle paste and enforce digits-only + max length
         private void txtBarcode_TextChanged(object sender, EventArgs e)
         {
-            // keep only digits
-            string digitsOnly = Regex.Replace(txtBarcode.Text, @"\D", "");
+            //// keep only digits
+            //string digitsOnly = Regex.Replace(txtBarcode.Text, @"\D", "");
 
-            // trim to max 13 if pasted longer string
+            //// trim to max 13 if pasted longer string
+            //if (digitsOnly.Length > 13)
+            //    digitsOnly = digitsOnly.Substring(0, 13);
+
+            //if (txtBarcode.Text != digitsOnly)
+            //{
+            //    int sel = txtBarcode.SelectionStart;
+            //    txtBarcode.Text = digitsOnly;
+            //    txtBarcode.SelectionStart = Math.Min(sel, txtBarcode.Text.Length);
+            //}
+            // Keep only digits, but allow leading zero
+            string digitsOnly = Regex.Replace(txtBarcode.Text, @"[^\d]", "");
+
+            // Trim to max 13 characters
             if (digitsOnly.Length > 13)
                 digitsOnly = digitsOnly.Substring(0, 13);
 
+            // Update textbox only if changed
             if (txtBarcode.Text != digitsOnly)
             {
                 int sel = txtBarcode.SelectionStart;
