@@ -117,17 +117,13 @@ namespace Sales_Inventory
             dgv.CurrentCell = null;
 
 
-            // Restrict inputs (letters, spaces, ., , , - only)
-            txtCategoryName.KeyPress += BlockInvalidCharacters_KeyPress;
-            txtDescription.KeyPress += BlockInvalidCharacters_KeyPress;
-
+           
             // Bawal mag-type ng number
             txtCategoryName.KeyPress += BlockNumbers_KeyPress;
             txtDescription.KeyPress += BlockNumbers_KeyPress;
 
-            // Restrict inputs
-            txtCategoryName.KeyPress += BlockInvalidCharacters_KeyPress;
-            txtDescription.KeyPress += BlockInvalidCharacters_KeyPress;
+           
+          
 
             // Bawal mag-right click copy/paste
             txtCategoryName.ContextMenu = new ContextMenu();
@@ -136,6 +132,8 @@ namespace Sales_Inventory
             // Bawal Ctrl+V / Ctrl+C / Ctrl+X / Shift+Insert / Ctrl+Insert
             txtCategoryName.KeyDown += BlockCopyPaste_KeyDown;
             txtDescription.KeyDown += BlockCopyPaste_KeyDown;
+
+            txtDescription.KeyPress += BlockMultipleSpaces_KeyPress;
 
             // Auto-normalize spaces kapag iniwan ang textbox
             txtCategoryName.Leave += NormalizeSpaces;
@@ -146,7 +144,29 @@ namespace Sales_Inventory
             txtDescription.ShortcutsEnabled = false;
 
         }
+        private void BlockMultipleSpaces_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
 
+            if (tb != null && e.KeyChar == ' ')
+            {
+                int pos = tb.SelectionStart;
+
+                // 1. Bawal kung unang character
+                if (pos == 0)
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // 2. Bawal kung previous character ay space
+                if (pos > 0 && tb.Text[pos - 1] == ' ')
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
         private void NormalizeSpaces(object sender, EventArgs e)
         {
             TextBox tb = sender as TextBox;
@@ -176,13 +196,7 @@ namespace Sales_Inventory
                 MessageBox.Show("Copy/Paste is disabled in this field.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-        private void BlockInvalidCharacters_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsLetter(e.KeyChar) && !char.IsControl(e.KeyChar))
-            {
-                e.Handled = true; // block lahat ng hindi letter at control
-            }
-        }
+       
 
 
         private void ClearFields()

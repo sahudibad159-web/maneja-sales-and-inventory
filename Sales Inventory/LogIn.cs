@@ -42,10 +42,37 @@ namespace Sales_Inventory
             {
                 ConnectionModule.openCon();
 
-                // 🔐 Hash password
+                // 🟨 STEP 1: Check if there’s at least one Admin account
+                string checkAdminQuery = "SELECT COUNT(*) FROM Users WHERE Role='Admin'";
+
+                using (MySqlCommand adminCmd = new MySqlCommand(checkAdminQuery, ConnectionModule.con))
+                {
+                    int adminCount = Convert.ToInt32(adminCmd.ExecuteScalar());
+
+                    if (adminCount == 0)
+                    {
+                        MessageBox.Show(
+                            "No admin account detected. Please register an Admin account to proceed.",
+                            "Admin Registration Required",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information
+                        );
+
+                        // 🟢 Open registration form for Admin
+                        this.Hide();
+                        AdminRegistrationcs regForm = new AdminRegistrationcs("Admin"); // pass role parameter if needed
+                        regForm.ShowDialog();
+
+                        // Re-show login after registration
+                        this.Show();
+                        return;
+                    }
+                }
+
+                // 🔐 STEP 2: Hash password
                 string hashedPassword = HashPassword(password);
 
-                // 🔹 Check credentials (case-sensitive username)
+                // 🔹 STEP 3: Check credentials (case-sensitive username)
                 string query = @"SELECT Role, FullName 
                          FROM Users 
                          WHERE BINARY Username=@username 
@@ -67,7 +94,7 @@ namespace Sales_Inventory
 
                             MessageBox.Show($"Welcome {fullName} ({role})!", "Login Successful", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                            // Session tracking
+                            // ✅ Session tracking
                             ConnectionModule.Session.Username = username;
                             ConnectionModule.Session.FullName = fullName;
                             ConnectionModule.Session.Role = role;
@@ -75,7 +102,7 @@ namespace Sales_Inventory
 
                             reader.Close();
 
-                            // Insert successful login log
+                            // 🗒️ Log successful login
                             string logQuery = @"INSERT INTO login_logs (Username, Role, LoginTime, Status)
                                         VALUES (@user, @role, NOW(), 'Logged In')";
                             using (MySqlCommand logCmd = new MySqlCommand(logQuery, ConnectionModule.con))
@@ -85,7 +112,7 @@ namespace Sales_Inventory
                                 logCmd.ExecuteNonQuery();
                             }
 
-                            // Proceed to form
+                            // 🧭 Redirect based on role
                             Form nextForm = role == "Cashier" ? (Form)new POS(role) : new Dashboard(role);
                             nextForm.Show();
                             this.Hide();
@@ -94,9 +121,9 @@ namespace Sales_Inventory
                         {
                             reader.Close();
 
-                            // Log failed attempt
+                            // 🗒️ Log failed attempt
                             string logFailQuery = @"INSERT INTO login_logs (Username, Role, LoginTime, Status)
-                                             VALUES (@user, 'Unknown', NOW(), 'Failed Attempt')";
+                                            VALUES (@user, 'Unknown', NOW(), 'Failed Attempt')";
                             using (MySqlCommand failLogCmd = new MySqlCommand(logFailQuery, ConnectionModule.con))
                             {
                                 failLogCmd.Parameters.Add("@user", MySqlDbType.VarChar, 50).Value = username;
@@ -117,6 +144,7 @@ namespace Sales_Inventory
                 ConnectionModule.closeCon();
             }
         }
+
 
 
 

@@ -24,8 +24,58 @@ namespace Sales_Inventory
 
             mobileNumber = mobile;
             expectedOTP = otp;
-
+            txtOTP.ContextMenu = new ContextMenu();
+            txtOTP.KeyPress += DigitsOnly_KeyPress;
+            txtOTP.KeyDown += BlockCopyPaste_KeyDown;
+            txtOTP.KeyPress += BlockMultipleSpaces_KeyPress;
+            txtOTP.ShortcutsEnabled = false;
         }
+
+        // 🔹 Digits only (ContactNumber)
+        private void DigitsOnly_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
+        // 🔹 Letters + numbers + space + ., - allowed (Address)
+        private void BlockMultipleSpaces_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+
+            if (tb != null && e.KeyChar == ' ')
+            {
+                int pos = tb.SelectionStart;
+
+                // 1. Bawal kung unang character
+                if (pos == 0)
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // 2. Bawal kung previous character ay space
+                if (pos > 0 && tb.Text[pos - 1] == ' ')
+                {
+                    e.Handled = true;
+                    return;
+                }
+            }
+        }
+
+        private void BlockCopyPaste_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X)) ||
+                (e.Shift && e.KeyCode == Keys.Insert) ||
+                (e.Control && e.KeyCode == Keys.Insert))
+            {
+                e.SuppressKeyPress = true;
+                MessageBox.Show("Copy/Paste is disabled in this field.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        
 
         private void SecurityCode_Load(object sender, EventArgs e)
         {

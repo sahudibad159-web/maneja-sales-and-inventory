@@ -140,6 +140,7 @@
             this.txtOTP.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.txtOTP.Location = new System.Drawing.Point(32, 166);
             this.txtOTP.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtOTP.MaxLength = 6;
             this.txtOTP.Name = "txtOTP";
             this.txtOTP.PlaceholderText = "";
             this.txtOTP.SelectedText = "";

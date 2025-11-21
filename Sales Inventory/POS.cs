@@ -761,12 +761,38 @@ namespace Sales_Inventory
                                 "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
-            // Non-essential categories
+            // 🧾 Non-essential categories
             List<string> nonEssentialCategories = new List<string>
-    {
-        "Alcohol", "Cigarettes", "Tobacco", "Liquor", "Hygiene"
-    };
+{
+    "Alcohol",
+    "Cigarettes",
+    "Tobacco",
+    "Liquor",
+    "Hygiene",
+    "Perfume",
+    "Cologne",
+    "Cosmetics",
+    "Makeup",
+    "Skincare",
+    "Haircare",
+    "Deodorant",
+    "Soap (Luxury)",
+    "Shampoo",
+    "Lotion",
+    "Conditioner",
+    "Toiletries",
+    "Air Freshener",
+    "Pet Food",
+    "Pet Supplies",
+   // "Soft Drinks",
+   // "Energy Drink",
+   // "Snacks",
+   // "Chips",
+  //  "Chocolate",
+   // "Candy",
+   // "Gum",
+   // "Instant Noodles"
+};
 
             List<DataGridViewRow> eligibleItems = new List<DataGridViewRow>();
 

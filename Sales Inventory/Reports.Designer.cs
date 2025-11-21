@@ -73,7 +73,7 @@
             this.BtnShift_Logs.Name = "BtnShift_Logs";
             this.BtnShift_Logs.Size = new System.Drawing.Size(260, 140);
             this.BtnShift_Logs.TabIndex = 57;
-            this.BtnShift_Logs.Text = "Shift Logs";
+            this.BtnShift_Logs.Text = "Sales Transaction";
             this.BtnShift_Logs.Click += new System.EventHandler(this.BtnShift_Logs_Click);
             // 
             // guna2Button3

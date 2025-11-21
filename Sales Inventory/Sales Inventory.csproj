@@ -136,6 +136,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdminRegistrationcs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminRegistrationcs.Designer.cs">
+      <DependentUpon>AdminRegistrationcs.cs</DependentUpon>
+    </Compile>
     <Compile Include="AuditTrail.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -399,6 +405,9 @@
     <Compile Include="VoidReason.Designer.cs">
       <DependentUpon>VoidReason.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AdminRegistrationcs.resx">
+      <DependentUpon>AdminRegistrationcs.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="AuditTrail.resx">
       <DependentUpon>AuditTrail.cs</DependentUpon>
     </EmbeddedResource>

@@ -171,6 +171,7 @@
             this.txtMobile.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.txtMobile.Location = new System.Drawing.Point(20, 165);
             this.txtMobile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtMobile.MaxLength = 11;
             this.txtMobile.Name = "txtMobile";
             this.txtMobile.PlaceholderText = "";
             this.txtMobile.SelectedText = "";
