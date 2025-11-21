@@ -16,6 +16,7 @@ namespace Sales_Inventory
     {
         private string memberId;
         private decimal currentPoints;
+
         public bool PointsCoverTotal { get; private set; } = false;
         public decimal TotalAmount { get; set; } // set from POS before opening MemberPoints
 

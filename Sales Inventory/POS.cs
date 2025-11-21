@@ -784,17 +784,21 @@ namespace Sales_Inventory
     "Air Freshener",
     "Pet Food",
     "Pet Supplies",
-   // "Soft Drinks",
-   // "Energy Drink",
-   // "Snacks",
-   // "Chips",
-  //  "Chocolate",
-   // "Candy",
-   // "Gum",
-   // "Instant Noodles"
+
 };
 
             List<DataGridViewRow> eligibleItems = new List<DataGridViewRow>();
+            bool pointsRedeemed = !string.IsNullOrWhiteSpace(txtRedeemedPoints.Text) && txtRedeemedPoints.Text != "0";
+
+            if (pointsRedeemed)
+            {
+                MessageBox.Show("Discount cannot be applied because points have already been redeemed in this transaction.",
+                                "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return; // exit early
+            }
+
+            bool hasWholesaleItem = false;
+            bool hasNonEssentialCategory = false;
 
             using (MySqlConnection con = new MySqlConnection("server=localhost;user id=root;password=;database=sales_inventory"))
             {
@@ -802,21 +806,27 @@ namespace Sales_Inventory
 
                 foreach (DataGridViewRow row in dgvProduct.Rows)
                 {
-                    if (row.IsNewRow) continue; // Skip empty row
+                    if (row.IsNewRow) continue;
 
                     int productId = Convert.ToInt32(row.Cells["ProductIDColumn"].Value);
 
                     // Check category
-                    string query = "SELECT CategoryName FROM category c INNER JOIN product p ON p.CategoryID = c.CategoryID WHERE p.ProductID = @ProductID";
+                    string query = @"SELECT c.CategoryName 
+                         FROM category c 
+                         INNER JOIN product p ON p.CategoryID = c.CategoryID 
+                         WHERE p.ProductID = @ProductID";
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     {
                         cmd.Parameters.AddWithValue("@ProductID", productId);
                         object result = cmd.ExecuteScalar();
                         if (result != null)
                         {
-                            string category = result.ToString();
-                            if (nonEssentialCategories.Contains(category, StringComparer.OrdinalIgnoreCase))
+                            string category = result.ToString().Trim();
+                            if (nonEssentialCategories.Any(c => c.Equals(category, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                hasNonEssentialCategory = true;
                                 continue; // Skip non-essential
+                            }
                         }
                     }
 
@@ -824,29 +834,42 @@ namespace Sales_Inventory
                     decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
                     if (row.Tag != null)
                     {
-                        decimal wholesalePrice = Convert.ToDecimal(row.Tag.GetType().GetProperty("Wholesale").GetValue(row.Tag, null));
+                        decimal wholesalePrice = Convert.ToDecimal(
+                            row.Tag.GetType().GetProperty("Wholesale").GetValue(row.Tag, null)
+                        );
                         if (price <= wholesalePrice)
+                        {
+                            hasWholesaleItem = true;
                             continue;
+                        }
                     }
 
-                    // Already discounted
-                    decimal existingDiscount = row.Cells["DiscountColumn"].Value != null ? Convert.ToDecimal(row.Cells["DiscountColumn"].Value) : 0;
-                    if (existingDiscount > 0) continue;
-
-                    // Points used
-                    if (RedeemPoints > 0) continue;
-
-                    // Eligible item
-                    eligibleItems.Add(row);
+                    eligibleItems.Add(row); // Add to eligible list
                 }
             }
 
+            // Decide which message to show
             if (eligibleItems.Count == 0)
             {
-                MessageBox.Show("No eligible items found for discount.",
-                                "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (hasWholesaleItem)
+                {
+                    MessageBox.Show("Discount cannot be applied on wholesale items.",
+                                    "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else if (hasNonEssentialCategory)
+                {
+                    MessageBox.Show("Discount cannot be applied on non-essential categories.",
+                                    "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show("No eligible items found for discount.",
+                                    "Discount Not Allowed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
                 return;
             }
+
+
 
             // Proceed to discount form
             using (Discount discountForm = new Discount(eligibleItems))
@@ -1318,10 +1341,8 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
             using (MemberPoints frm = new MemberPoints(memberCode))
             {
                 decimal currentTotal = string.IsNullOrWhiteSpace(txtTotal.Text) ? 0 : Convert.ToDecimal(txtTotal.Text);
-                frm.TotalAmount = currentTotal;
-
-                // ➕ Add this line:
-                frm.CartIsEmpty = isCartEmpty;
+                frm.TotalAmount = Convert.ToDecimal(txtTotal.Text);
+                frm.CartIsEmpty = dgvProduct.Rows.Cast<DataGridViewRow>().All(r => r.IsNewRow);
 
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
@@ -1748,39 +1769,42 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
 
         private void guna2Button2_Click(object sender, EventArgs e)
         {
-            if (dgvProduct.Rows.Count == 0)
+            // 🔹 Optional: kung gusto mo palaging i-reset kahit walang items
+            if (dgvProduct.Rows.Count == 0 && string.IsNullOrWhiteSpace(txtMemberID.Text))
             {
-                MessageBox.Show("No items to cancel.", "Cancel Transaction",
+                MessageBox.Show("Nothing to cancel.", "Cancel Transaction",
                                 MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             if (MessageBox.Show("Are you sure you want to cancel the entire transaction?",
-                                "Confirm Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                "Confirm Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
             {
-                // Clear cart
-                dgvProduct.Rows.Clear();
-
-                // Reset totals
-                txtSubTotal.Text = "0.00";
-                txtDiscount.Text = "0.00";
-                txtPoints.Text = "";
-                txtVatableSales.Text = "0.00";
-                txtVatAmount.Text = "0.00";
-                txtVatExempt.Text = "0.00";
-                txtTotal.Text = "0.00";
-
-                // Reset member info & points
-                txtMemberID.Text = "";
-
-                txtRedeemedPoints.Text = "0";
-
-                ResetPOS();
-
-                MessageBox.Show("Transaction has been cancelled and POS has been reset.",
-                                "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
+
+            // Clear cart (kung may laman)
+            dgvProduct.Rows.Clear();
+
+            // Reset totals
+            txtSubTotal.Text = "0.00";
+            txtDiscount.Text = "0.00";
+            txtPoints.Text = "";
+            txtVatableSales.Text = "0.00";
+            txtVatAmount.Text = "0.00";
+            txtVatExempt.Text = "0.00";
+            txtTotal.Text = "0.00";
+
+            // Reset member info & points
+            txtMemberID.Text = "";
+            txtRedeemedPoints.Text = "0";
+
+            ResetPOS();
+
+            MessageBox.Show("Transaction has been cancelled and POS has been reset.",
+                            "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
 
 
         private void DrawTwoColumnText(Graphics g, string leftText, string rightText, Font font, Brush brush, int left, int right, int y)

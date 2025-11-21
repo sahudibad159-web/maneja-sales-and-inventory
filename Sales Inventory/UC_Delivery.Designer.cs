@@ -293,6 +293,7 @@
             this.txtCostPerItem.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.txtCostPerItem.Location = new System.Drawing.Point(665, 66);
             this.txtCostPerItem.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtCostPerItem.MaxLength = 8;
             this.txtCostPerItem.Name = "txtCostPerItem";
             this.txtCostPerItem.PlaceholderText = "";
             this.txtCostPerItem.SelectedText = "";
