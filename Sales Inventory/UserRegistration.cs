@@ -469,6 +469,10 @@ namespace Sales_Inventory
                         cmd.Parameters.AddWithValue("@Status", "Active");
                         cmd.ExecuteNonQuery();
                     }
+                    // 🔹 INSERT AUDIT TRAIL
+                    string details = $"New user registered | Username: {txtUserName.Text.Trim()} | FullName: {fullName} | Role: {cmbRole.Text.Trim()}";
+                    ConnectionModule.InsertAuditTrail("Insert", "Users", details);
+
                 }
 
                 MessageBox.Show("User registered successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -499,7 +503,7 @@ namespace Sales_Inventory
                 if (string.IsNullOrWhiteSpace(txtFirstName.Text) ||
                     string.IsNullOrWhiteSpace(txtLastName.Text) ||
                     string.IsNullOrWhiteSpace(txtUserName.Text) ||
-                  //  string.IsNullOrWhiteSpace(txtPassword.Text) ||
+                
                     string.IsNullOrWhiteSpace(txtAge.Text) ||
                     string.IsNullOrWhiteSpace(txtContact.Text))
                 {

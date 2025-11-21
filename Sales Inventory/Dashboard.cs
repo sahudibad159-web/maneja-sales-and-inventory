@@ -188,7 +188,7 @@ namespace Sales_Inventory
                 }
 
                 // ✅ 3. Optional: Insert Audit Trail for logout
-                ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
+             //   ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
 
                 // ✅ 4. Go back to Login
                 Loginform login = new Loginform();

@@ -2224,6 +2224,38 @@ VALUES (@u, @s, @e, @ts, @td, @v, @n, @cash, @gcash, @points, @senior, @pwd)
                     // Close or hide current form
 
 
+                    try
+                    {
+                        ConnectionModule.openCon();
+
+                        // ✅ Update the last login log for this user
+                        string updateLogQuery = @"
+UPDATE login_logs
+SET LogoutTime = NOW(),
+    Status = 'Logged Out'
+WHERE Username = @username
+  AND Status = 'Logged In'
+ORDER BY LogID DESC
+LIMIT 1";
+
+                        using (MySqlCommand cmd = new MySqlCommand(updateLogQuery, ConnectionModule.con))
+                        {
+                            cmd.Parameters.AddWithValue("@username", ConnectionModule.Session.Username);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        // ✅ Optional: Insert Audit Trail for logout
+                        ConnectionModule.InsertAuditTrail("Logout", "Users", $"User {ConnectionModule.Session.Username} logged out.");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error updating logout: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    finally
+                    {
+                        ConnectionModule.closeCon();
+                    }
+
                     // Show Login form
                     Loginform loginForm = new Loginform();
                     loginForm.Show();

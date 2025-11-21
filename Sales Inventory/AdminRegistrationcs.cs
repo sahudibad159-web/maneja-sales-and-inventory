@@ -224,6 +224,9 @@ namespace Sales_Inventory
 
                         cmd.ExecuteNonQuery();
                     }
+                    // 🔹 9. Insert Audit Trail after successful registration
+                    string auditDetails = $"New admin registered | Username: {txtUserName.Text.Trim()} | FullName: {fullName} | Role: {userRole} | Contact: {contact}";
+                    ConnectionModule.InsertAuditTrail("Insert", "Users", auditDetails);
                 }
 
                 MessageBox.Show("Admin account successfully created!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
