@@ -425,10 +425,10 @@ namespace Sales_Inventory
                     con.Open();
 
                     // ✅ 6. Check if username exists
-                    string checkUserQuery = "SELECT COUNT(*) FROM users WHERE Username = @Username";
+                    string checkUserQuery = "SELECT COUNT(*) FROM users WHERE LOWER(Username) = @Username";
                     using (var checkCmd = new MySqlCommand(checkUserQuery, con))
                     {
-                        checkCmd.Parameters.AddWithValue("@Username", txtUserName.Text.Trim());
+                        checkCmd.Parameters.AddWithValue("@Username", txtUserName.Text.Trim().ToLower());
                         int count = Convert.ToInt32(checkCmd.ExecuteScalar());
                         if (count > 0)
                         {
