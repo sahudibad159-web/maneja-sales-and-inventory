@@ -140,20 +140,30 @@ namespace Sales_Inventory
 
         private void dgvVieewProduct_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
-            {
-                DataGridViewRow row = dgvVieewProduct.Rows[e.RowIndex];
+            // Ignore header & empty rows
+            if (e.RowIndex < 0)
+                return;
 
-                SelectedProductID = Convert.ToInt32(row.Cells["ProductID"].Value); // ✅ ADD THIS LINE
-                SelectedProductName = row.Cells["ProductName"].Value?.ToString();
-                SelectedDescription = row.Cells["Description"].Value?.ToString();
-                SelectedStock = Convert.ToInt32(row.Cells["QuantityInStock"].Value);
-                SelectedQuantity = 1;
-                SelectedPrice = Convert.ToDecimal(row.Cells["RetailPrice"].Value);
+            DataGridViewRow row = dgvVieewProduct.Rows[e.RowIndex];
 
-                this.DialogResult = DialogResult.OK;
-                this.Close();
-            }
+            // Ignore new/empty row
+            if (row.IsNewRow)
+                return;
+
+            // Check required field (ProductID)
+            if (row.Cells["ProductID"].Value == null ||
+                row.Cells["ProductID"].Value == DBNull.Value)
+                return;
+
+            SelectedProductID = Convert.ToInt32(row.Cells["ProductID"].Value);
+            SelectedProductName = row.Cells["ProductName"].Value?.ToString();
+            SelectedDescription = row.Cells["Description"].Value?.ToString();
+            SelectedStock = Convert.ToInt32(row.Cells["QuantityInStock"].Value);
+            SelectedQuantity = 1;
+            SelectedPrice = Convert.ToDecimal(row.Cells["RetailPrice"].Value);
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         private void txtSearchInventoryProduct_TextChanged(object sender, EventArgs e)

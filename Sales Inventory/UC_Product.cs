@@ -1185,5 +1185,10 @@ namespace Sales_Inventory
         {
 
         }
+
+        private void rdoWithoutExpiration_CheckedChanged(object sender, EventArgs e)
+        {
+            
+        }
     }
 }

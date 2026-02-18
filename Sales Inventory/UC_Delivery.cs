@@ -76,7 +76,7 @@ namespace Sales_Inventory
         private void UC_Delivery_Load(object sender, EventArgs e)
         {
             dtpDeliveryDate.Enabled = false;
-         
+            dtpExpirationDate.Value = DateTime.Today;
             dtpExpirationDate.Enabled = false; // ❌ Disable by default
             dtpExpirationDate.MinDate = DateTimePicker.MinimumDateTime;
             dtpExpirationDate.MaxDate = DateTimePicker.MaximumDateTime;
@@ -1402,6 +1402,11 @@ namespace Sales_Inventory
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel3_Paint(object sender, PaintEventArgs e)
         {
 
         }

@@ -244,7 +244,7 @@ ORDER BY d.DeliveryDate ASC;";
                 // ✅ Check if idDetail column exists
                 if (!dgvStockReport.Columns.Contains("idDetail"))
                 {
-                    MessageBox.Show("idDetail column not found in DataGridView.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Go to Stock Out View.", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 

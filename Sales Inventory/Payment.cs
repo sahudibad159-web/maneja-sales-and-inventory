@@ -62,10 +62,12 @@ namespace Sales_Inventory
             panelGcash.Height = 0;      // collapsed start
             panelGcash.Visible = false;
 
-            txtGcash.KeyPress += DigitsOnly_KeyPress;
+            //txtGcash.KeyPress += DecimalOnly_KeyPress;
+            //txtCash.KeyPress += DecimalOnly_KeyPress;
+            //txtChange.KeyPress += DecimalOnly_KeyPress;
+
             txtReference.KeyPress += DigitsOnly_KeyPress;
-            txtChange.KeyPress += DigitsOnly_KeyPress;
-            txtCash.KeyPress += DigitsOnly_KeyPress;
+           
 
             txtGcash.ContextMenu = new ContextMenu();
             txtCash.ContextMenu = new ContextMenu();
@@ -134,6 +136,55 @@ namespace Sales_Inventory
                 }
             }
         }
+        //private void DecimalOnly_KeyPress(object sender, KeyPressEventArgs e)
+        //{
+        //    TextBox tb = sender as TextBox;
+        //    if (tb == null)
+        //        return;
+
+        //    // Allow control keys
+        //    if (char.IsControl(e.KeyChar))
+        //        return;
+
+        //    // Block dot as first character
+        //    if (e.KeyChar == '.' && tb.SelectionStart == 0)
+        //    {
+        //        e.Handled = true;
+        //        return;
+        //    }
+
+        //    string text = tb.Text;
+        //    int selectionStart = tb.SelectionStart;
+        //    int selectionLength = tb.SelectionLength;
+
+        //    // Simulate next text
+        //    if (selectionLength > 0)
+        //        text = text.Remove(selectionStart, selectionLength);
+
+        //    text = text.Insert(selectionStart, e.KeyChar.ToString());
+
+        //    // Allow only one decimal point
+        //    if (text.Count(c => c == '.') > 1)
+        //    {
+        //        e.Handled = true;
+        //        return;
+        //    }
+
+        //    // Max 2 decimal places
+        //    int dotIndex = text.IndexOf('.');
+        //    if (dotIndex >= 0 && text.Length - dotIndex - 1 > 2)
+        //    {
+        //        e.Handled = true;
+        //        return;
+        //    }
+
+        //    // Allow digits and dot only
+        //    if (!char.IsDigit(e.KeyChar) && e.KeyChar != '.')
+        //    {
+        //        e.Handled = true;
+        //    }
+        //}
+
 
         // 🔹 Digits only (ContactNumber)
         private void DigitsOnly_KeyPress(object sender, KeyPressEventArgs e)

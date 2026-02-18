@@ -70,7 +70,7 @@ namespace Sales_Inventory
                 }
 
                 // 🔐 STEP 2: Hash password
-                string hashedPassword = HashPassword(password);
+                string hashedPassword = (password);
 
                 // 🔹 STEP 3: Check credentials (case-sensitive username)
                 string query = @"SELECT Role, FullName 

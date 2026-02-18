@@ -95,7 +95,7 @@ namespace Sales_Inventory
         private void Delivery_Load(object sender, EventArgs e)
         {
             txtDeliveryReceipt.KeyPress += DigitsOnly_KeyPress;
-
+            dtpDeliveryDate.Value = DateTime.Today;
             txtDeliveryReceipt.ShortcutsEnabled = false;
             txtDeliveryReceipt.ContextMenu = new ContextMenu();
         }

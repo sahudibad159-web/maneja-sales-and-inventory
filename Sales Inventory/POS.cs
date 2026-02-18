@@ -113,14 +113,15 @@ namespace Sales_Inventory
         private void ComputeTotals()
         {
             decimal subTotal = 0;
-            decimal discount = 0;        // for Senior/PWD only
-            decimal redeemedPoints = 0;  // for member points
+            decimal discount = 0;
+            decimal redeemedPoints = 0;
             decimal vatRate = GetVatRateFromDatabase();
 
-            // 1️⃣ Compute subtotal (price × quantity)
+            // 1️⃣ Compute subtotal
             foreach (DataGridViewRow row in dgvProduct.Rows)
             {
-                if (row.Cells["PriceColumn"].Value != null && row.Cells["QuantityColumn"].Value != null)
+                if (row.Cells["PriceColumn"].Value != null &&
+                    row.Cells["QuantityColumn"].Value != null)
                 {
                     decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
                     int qty = Convert.ToInt32(row.Cells["QuantityColumn"].Value);
@@ -128,40 +129,53 @@ namespace Sales_Inventory
                 }
             }
 
-            // 2️⃣ Get Senior/PWD discount
-            if (!string.IsNullOrWhiteSpace(txtDiscount.Text))
-                discount = Convert.ToDecimal(txtDiscount.Text);
-
-            // 3️⃣ Get Redeemed Points (deduction)
             if (!string.IsNullOrWhiteSpace(txtRedeemedPoints.Text))
                 redeemedPoints = Convert.ToDecimal(txtRedeemedPoints.Text);
 
-            // 4️⃣ Compute total
-            decimal totalAfterDiscountAndPoints = subTotal - discount - redeemedPoints;
-            if (totalAfterDiscountAndPoints < 0)
-                totalAfterDiscountAndPoints = 0;
-
-            // 5️⃣ VAT breakdown
             decimal vatableSales = 0;
             decimal vatAmount = 0;
             decimal vatExempt = 0;
+            decimal total = 0;
 
-            if (isVatExemptApplied)
+            if (isVatExemptApplied) // ✅ Senior / PWD
             {
-                vatExempt = totalAfterDiscountAndPoints;
+                // STEP 1: Remove VAT
+                vatExempt = subTotal / (1 + vatRate);
+
+                // STEP 2: Compute 20% discount from VAT-EXCLUSIVE amount
+                discount = vatExempt * 0.20m;
+
+                // STEP 3: Final total
+                total = vatExempt - discount - redeemedPoints;
+
+                if (total < 0)
+                    total = 0;
+
+                vatableSales = 0;
+                vatAmount = 0;
             }
-            else
+            else // ✅ Regular customer
             {
-                vatableSales = totalAfterDiscountAndPoints / (1 + vatRate);
-                vatAmount = totalAfterDiscountAndPoints - vatableSales;
+                if (!string.IsNullOrWhiteSpace(txtDiscount.Text))
+                    discount = Convert.ToDecimal(txtDiscount.Text);
+
+                total = subTotal - discount - redeemedPoints;
+
+                if (total < 0)
+                    total = 0;
+
+                vatableSales = total / (1 + vatRate);
+                vatAmount = total - vatableSales;
+                vatExempt = 0;
             }
 
             // 6️⃣ Update UI
             txtSubTotal.Text = subTotal.ToString("N2");
+            txtDiscount.Text = discount.ToString("N2");
             txtVatableSales.Text = vatableSales.ToString("N2");
             txtVatAmount.Text = vatAmount.ToString("N2");
             txtVatExempt.Text = vatExempt.ToString("N2");
-            txtTotal.Text = totalAfterDiscountAndPoints.ToString("N2");
+            txtTotal.Text = total.ToString("N2");
         }
 
 
@@ -1769,40 +1783,54 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
 
         private void guna2Button2_Click(object sender, EventArgs e)
         {
-            // 🔹 Optional: kung gusto mo palaging i-reset kahit walang items
-            if (dgvProduct.Rows.Count == 0 && string.IsNullOrWhiteSpace(txtMemberID.Text))
+            if (dgvProduct.Rows.Count == 0 &&
+                    string.IsNullOrWhiteSpace(txtMemberID.Text))
             {
-                MessageBox.Show("Nothing to cancel.", "Cancel Transaction",
-                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Nothing to cancel.",
+                                "Cancel Transaction",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
                 return;
             }
 
             if (MessageBox.Show("Are you sure you want to cancel the entire transaction?",
-                                "Confirm Cancel", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                                "Confirm Cancel",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question) != DialogResult.Yes)
             {
                 return;
             }
 
-            // Clear cart (kung may laman)
+            // 🔹 Clear cart
             dgvProduct.Rows.Clear();
 
-            // Reset totals
+            // 🔹 RESET IMPORTANT FLAGS
+            isVatExemptApplied = false;   // VERY IMPORTANT
+                                          // if you have senior checkbox:
+                                          // chkSenior.Checked = false;
+                                          // chkPWD.Checked = false;
+
+            // 🔹 Reset all numeric fields
             txtSubTotal.Text = "0.00";
             txtDiscount.Text = "0.00";
-            txtPoints.Text = "";
             txtVatableSales.Text = "0.00";
             txtVatAmount.Text = "0.00";
             txtVatExempt.Text = "0.00";
             txtTotal.Text = "0.00";
 
-            // Reset member info & points
+            // 🔹 Reset member & points
             txtMemberID.Text = "";
+            txtPoints.Text = "";
             txtRedeemedPoints.Text = "0";
 
-            ResetPOS();
+            // 🔹 Optional: force recompute clean state
+            ComputeTotals();
 
             MessageBox.Show("Transaction has been cancelled and POS has been reset.",
-                            "Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            "Cancelled",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information);
+
         }
 
 

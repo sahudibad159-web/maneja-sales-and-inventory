@@ -31,11 +31,9 @@
             this.chkShowPassword = new Guna.UI2.WinForms.Guna2CheckBox();
             this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.txtAge = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtUserName = new Guna.UI2.WinForms.Guna2TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
             this.label3 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.txtFirstName = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtLastName = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtContact = new Guna.UI2.WinForms.Guna2TextBox();
@@ -44,9 +42,14 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.dtpBirthDate = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.label6 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.guna2ControlBox1 = new Guna.UI2.WinForms.Guna2ControlBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.txtConfirmPassword = new Guna.UI2.WinForms.Guna2TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.guna2CheckBox1 = new Guna.UI2.WinForms.Guna2CheckBox();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -59,7 +62,7 @@
             this.chkShowPassword.CheckedState.BorderThickness = 0;
             this.chkShowPassword.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.chkShowPassword.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkShowPassword.Location = new System.Drawing.Point(747, 136);
+            this.chkShowPassword.Location = new System.Drawing.Point(578, 166);
             this.chkShowPassword.Name = "chkShowPassword";
             this.chkShowPassword.Size = new System.Drawing.Size(142, 24);
             this.chkShowPassword.TabIndex = 182;
@@ -103,29 +106,6 @@
             this.label7.TabIndex = 65;
             this.label7.Text = "Password:";
             // 
-            // txtAge
-            // 
-            this.txtAge.BorderColor = System.Drawing.Color.Black;
-            this.txtAge.BorderRadius = 11;
-            this.txtAge.BorderThickness = 2;
-            this.txtAge.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtAge.DefaultText = "";
-            this.txtAge.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.txtAge.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.txtAge.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtAge.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtAge.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtAge.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtAge.ForeColor = System.Drawing.Color.Black;
-            this.txtAge.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtAge.Location = new System.Drawing.Point(551, 20);
-            this.txtAge.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtAge.Name = "txtAge";
-            this.txtAge.PlaceholderText = "";
-            this.txtAge.SelectedText = "";
-            this.txtAge.Size = new System.Drawing.Size(169, 40);
-            this.txtAge.TabIndex = 178;
-            // 
             // txtUserName
             // 
             this.txtUserName.BorderColor = System.Drawing.Color.Black;
@@ -155,7 +135,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel3.Location = new System.Drawing.Point(0, 555);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1110, 10);
+            this.panel3.Size = new System.Drawing.Size(1141, 10);
             this.panel3.TabIndex = 186;
             // 
             // label3
@@ -167,16 +147,6 @@
             this.label3.Size = new System.Drawing.Size(123, 23);
             this.label3.TabIndex = 45;
             this.label3.Text = "User Name:\r\n";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(459, 37);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(57, 23);
-            this.label5.TabIndex = 42;
-            this.label5.Text = "Age:";
             // 
             // txtFirstName
             // 
@@ -299,23 +269,54 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.panel2.Controls.Add(this.guna2CheckBox1);
+            this.panel2.Controls.Add(this.label5);
+            this.panel2.Controls.Add(this.txtConfirmPassword);
+            this.panel2.Controls.Add(this.dtpBirthDate);
+            this.panel2.Controls.Add(this.label6);
             this.panel2.Controls.Add(this.chkShowPassword);
             this.panel2.Controls.Add(this.txtPassword);
             this.panel2.Controls.Add(this.label7);
-            this.panel2.Controls.Add(this.txtAge);
             this.panel2.Controls.Add(this.txtUserName);
             this.panel2.Controls.Add(this.label3);
-            this.panel2.Controls.Add(this.label5);
             this.panel2.Controls.Add(this.txtFirstName);
             this.panel2.Controls.Add(this.txtLastName);
             this.panel2.Controls.Add(this.txtContact);
             this.panel2.Controls.Add(this.label8);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.label4);
-            this.panel2.Location = new System.Drawing.Point(9, 184);
+            this.panel2.Location = new System.Drawing.Point(0, 184);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1112, 372);
+            this.panel2.Size = new System.Drawing.Size(1138, 372);
             this.panel2.TabIndex = 184;
+            // 
+            // dtpBirthDate
+            // 
+            this.dtpBirthDate.BorderRadius = 11;
+            this.dtpBirthDate.BorderThickness = 3;
+            this.dtpBirthDate.Checked = true;
+            this.dtpBirthDate.FillColor = System.Drawing.Color.White;
+            this.dtpBirthDate.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtpBirthDate.ForeColor = System.Drawing.Color.Black;
+            this.dtpBirthDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpBirthDate.Location = new System.Drawing.Point(550, 20);
+            this.dtpBirthDate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.dtpBirthDate.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
+            this.dtpBirthDate.MinDate = new System.DateTime(1990, 1, 1, 0, 0, 0, 0);
+            this.dtpBirthDate.Name = "dtpBirthDate";
+            this.dtpBirthDate.Size = new System.Drawing.Size(170, 36);
+            this.dtpBirthDate.TabIndex = 185;
+            this.dtpBirthDate.Value = new System.DateTime(2026, 1, 15, 0, 0, 0, 0);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(435, 32);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(109, 23);
+            this.label6.TabIndex = 184;
+            this.label6.Text = "Birth Date:";
             // 
             // panel1
             // 
@@ -325,7 +326,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1110, 52);
+            this.panel1.Size = new System.Drawing.Size(1141, 52);
             this.panel1.TabIndex = 183;
             // 
             // guna2ControlBox1
@@ -333,7 +334,7 @@
             this.guna2ControlBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.guna2ControlBox1.FillColor = System.Drawing.Color.IndianRed;
             this.guna2ControlBox1.IconColor = System.Drawing.Color.White;
-            this.guna2ControlBox1.Location = new System.Drawing.Point(1072, 0);
+            this.guna2ControlBox1.Location = new System.Drawing.Point(1103, 0);
             this.guna2ControlBox1.Name = "guna2ControlBox1";
             this.guna2ControlBox1.Size = new System.Drawing.Size(38, 24);
             this.guna2ControlBox1.TabIndex = 79;
@@ -348,11 +349,65 @@
             this.label1.TabIndex = 78;
             this.label1.Text = "User Registration";
             // 
+            // txtConfirmPassword
+            // 
+            this.txtConfirmPassword.BorderColor = System.Drawing.Color.Black;
+            this.txtConfirmPassword.BorderRadius = 11;
+            this.txtConfirmPassword.BorderThickness = 2;
+            this.txtConfirmPassword.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtConfirmPassword.DefaultText = "";
+            this.txtConfirmPassword.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.txtConfirmPassword.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.txtConfirmPassword.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtConfirmPassword.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtConfirmPassword.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtConfirmPassword.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtConfirmPassword.ForeColor = System.Drawing.Color.Black;
+            this.txtConfirmPassword.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtConfirmPassword.Location = new System.Drawing.Point(941, 20);
+            this.txtConfirmPassword.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtConfirmPassword.Name = "txtConfirmPassword";
+            this.txtConfirmPassword.PlaceholderText = "";
+            this.txtConfirmPassword.SelectedText = "";
+            this.txtConfirmPassword.Size = new System.Drawing.Size(169, 40);
+            this.txtConfirmPassword.TabIndex = 186;
+            this.txtConfirmPassword.UseSystemPasswordChar = true;
+            this.txtConfirmPassword.TextChanged += new System.EventHandler(this.txtConfirmPassword_TextChanged);
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(743, 32);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(189, 23);
+            this.label5.TabIndex = 187;
+            this.label5.Text = "Confirm Password:";
+            // 
+            // guna2CheckBox1
+            // 
+            this.guna2CheckBox1.AutoSize = true;
+            this.guna2CheckBox1.CheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2CheckBox1.CheckedState.BorderRadius = 0;
+            this.guna2CheckBox1.CheckedState.BorderThickness = 0;
+            this.guna2CheckBox1.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2CheckBox1.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2CheckBox1.Location = new System.Drawing.Point(1039, 67);
+            this.guna2CheckBox1.Name = "guna2CheckBox1";
+            this.guna2CheckBox1.Size = new System.Drawing.Size(71, 24);
+            this.guna2CheckBox1.TabIndex = 188;
+            this.guna2CheckBox1.Text = "Show";
+            this.guna2CheckBox1.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.guna2CheckBox1.UncheckedState.BorderRadius = 0;
+            this.guna2CheckBox1.UncheckedState.BorderThickness = 0;
+            this.guna2CheckBox1.UncheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.guna2CheckBox1.CheckedChanged += new System.EventHandler(this.guna2CheckBox1_CheckedChanged);
+            // 
             // AdminRegistrationcs
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1110, 565);
+            this.ClientSize = new System.Drawing.Size(1141, 565);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.btnProceed);
@@ -374,11 +429,9 @@
         private Guna.UI2.WinForms.Guna2CheckBox chkShowPassword;
         private Guna.UI2.WinForms.Guna2TextBox txtPassword;
         private System.Windows.Forms.Label label7;
-        private Guna.UI2.WinForms.Guna2TextBox txtAge;
         private Guna.UI2.WinForms.Guna2TextBox txtUserName;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label5;
         private Guna.UI2.WinForms.Guna2TextBox txtFirstName;
         private Guna.UI2.WinForms.Guna2TextBox txtLastName;
         private Guna.UI2.WinForms.Guna2TextBox txtContact;
@@ -390,5 +443,10 @@
         private System.Windows.Forms.Panel panel1;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox1;
         private System.Windows.Forms.Label label1;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpBirthDate;
+        private System.Windows.Forms.Label label6;
+        private Guna.UI2.WinForms.Guna2TextBox txtConfirmPassword;
+        private System.Windows.Forms.Label label5;
+        private Guna.UI2.WinForms.Guna2CheckBox guna2CheckBox1;
     }
 }

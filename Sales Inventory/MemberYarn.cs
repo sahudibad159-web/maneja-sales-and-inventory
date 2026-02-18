@@ -61,7 +61,8 @@ namespace Sales_Inventory
                                 row.Cells["FirstName"].Value = reader["FirstName"].ToString();
                                 row.Cells["LastName"].Value = reader["LastName"].ToString();
                                 row.Cells["ContactNumber"].Value = reader["ContactNumber"].ToString();
-                                row.Cells["Points"].Value = Convert.ToInt32(reader["Points"]);
+                                decimal points = Convert.ToDecimal(reader["Points"]);
+                                row.Cells["Points"].Value = points.ToString("N2");
                                 row.Cells["DateJoined"].Value = Convert.ToDateTime(reader["DateJoined"]).ToString("yyyy-MM-dd");
                             }
                         }

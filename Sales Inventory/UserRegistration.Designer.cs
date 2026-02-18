@@ -29,12 +29,13 @@
         private void InitializeComponent()
         {
             this.panel2 = new System.Windows.Forms.Panel();
+            this.dtpBirthDate = new Guna.UI2.WinForms.Guna2DateTimePicker();
+            this.chkShowPassword = new Guna.UI2.WinForms.Guna2CheckBox();
             this.cmbRole = new Guna.UI2.WinForms.Guna2ComboBox();
             this.dgvUsers = new System.Windows.Forms.DataGridView();
             this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.txtAge = new Guna.UI2.WinForms.Guna2TextBox();
             this.txtUserName = new Guna.UI2.WinForms.Guna2TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -44,6 +45,7 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.txtAge = new Guna.UI2.WinForms.Guna2TextBox();
             this.btnProceed = new Guna.UI2.WinForms.Guna2Button();
             this.btnCancel = new Guna.UI2.WinForms.Guna2Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -54,7 +56,9 @@
             this.btnUpdate = new Guna.UI2.WinForms.Guna2Button();
             this.txtSearchUser = new Guna.UI2.WinForms.Guna2TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.chkShowPassword = new Guna.UI2.WinForms.Guna2CheckBox();
+            this.guna2CheckBox1 = new Guna.UI2.WinForms.Guna2CheckBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtConfirmPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsers)).BeginInit();
             this.panel1.SuspendLayout();
@@ -63,13 +67,16 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.panel2.Controls.Add(this.guna2CheckBox1);
+            this.panel2.Controls.Add(this.label10);
+            this.panel2.Controls.Add(this.txtConfirmPassword);
+            this.panel2.Controls.Add(this.dtpBirthDate);
             this.panel2.Controls.Add(this.chkShowPassword);
             this.panel2.Controls.Add(this.cmbRole);
             this.panel2.Controls.Add(this.dgvUsers);
             this.panel2.Controls.Add(this.txtPassword);
             this.panel2.Controls.Add(this.label6);
             this.panel2.Controls.Add(this.label7);
-            this.panel2.Controls.Add(this.txtAge);
             this.panel2.Controls.Add(this.txtUserName);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label5);
@@ -80,9 +87,49 @@
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Location = new System.Drawing.Point(12, 213);
+            this.panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1117, 541);
+            this.panel2.Size = new System.Drawing.Size(1171, 574);
             this.panel2.TabIndex = 4;
+            this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
+            // 
+            // dtpBirthDate
+            // 
+            this.dtpBirthDate.BorderRadius = 11;
+            this.dtpBirthDate.BorderThickness = 3;
+            this.dtpBirthDate.Checked = true;
+            this.dtpBirthDate.FillColor = System.Drawing.Color.White;
+            this.dtpBirthDate.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtpBirthDate.ForeColor = System.Drawing.Color.Black;
+            this.dtpBirthDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpBirthDate.Location = new System.Drawing.Point(550, 24);
+            this.dtpBirthDate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.dtpBirthDate.MaxDate = new System.DateTime(9998, 12, 31, 0, 0, 0, 0);
+            this.dtpBirthDate.MinDate = new System.DateTime(1990, 1, 1, 0, 0, 0, 0);
+            this.dtpBirthDate.Name = "dtpBirthDate";
+            this.dtpBirthDate.Size = new System.Drawing.Size(170, 36);
+            this.dtpBirthDate.TabIndex = 183;
+            this.dtpBirthDate.Value = new System.DateTime(2026, 1, 15, 0, 0, 0, 0);
+            // 
+            // chkShowPassword
+            // 
+            this.chkShowPassword.AutoSize = true;
+            this.chkShowPassword.CheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.chkShowPassword.CheckedState.BorderRadius = 0;
+            this.chkShowPassword.CheckedState.BorderThickness = 0;
+            this.chkShowPassword.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.chkShowPassword.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chkShowPassword.Location = new System.Drawing.Point(578, 159);
+            this.chkShowPassword.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.chkShowPassword.Name = "chkShowPassword";
+            this.chkShowPassword.Size = new System.Drawing.Size(142, 24);
+            this.chkShowPassword.TabIndex = 182;
+            this.chkShowPassword.Text = "Showpassword";
+            this.chkShowPassword.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.chkShowPassword.UncheckedState.BorderRadius = 0;
+            this.chkShowPassword.UncheckedState.BorderThickness = 0;
+            this.chkShowPassword.UncheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.chkShowPassword_CheckedChanged);
             // 
             // cmbRole
             // 
@@ -101,7 +148,8 @@
             this.cmbRole.Items.AddRange(new object[] {
             "CASHIER",
             "STAFF"});
-            this.cmbRole.Location = new System.Drawing.Point(890, 24);
+            this.cmbRole.Location = new System.Drawing.Point(907, 24);
+            this.cmbRole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbRole.Name = "cmbRole";
             this.cmbRole.Size = new System.Drawing.Size(191, 36);
             this.cmbRole.TabIndex = 181;
@@ -111,12 +159,13 @@
             this.dgvUsers.AllowUserToResizeColumns = false;
             this.dgvUsers.AllowUserToResizeRows = false;
             this.dgvUsers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvUsers.Location = new System.Drawing.Point(0, 187);
+            this.dgvUsers.Location = new System.Drawing.Point(0, 210);
+            this.dgvUsers.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dgvUsers.Name = "dgvUsers";
             this.dgvUsers.ReadOnly = true;
             this.dgvUsers.RowHeadersWidth = 51;
             this.dgvUsers.RowTemplate.Height = 24;
-            this.dgvUsers.Size = new System.Drawing.Size(1114, 354);
+            this.dgvUsers.Size = new System.Drawing.Size(1168, 362);
             this.dgvUsers.TabIndex = 56;
             this.dgvUsers.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvUsers_CellContentClick);
             // 
@@ -140,14 +189,14 @@
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PlaceholderText = "";
             this.txtPassword.SelectedText = "";
-            this.txtPassword.Size = new System.Drawing.Size(169, 40);
+            this.txtPassword.Size = new System.Drawing.Size(169, 39);
             this.txtPassword.TabIndex = 180;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(784, 37);
+            this.label6.Location = new System.Drawing.Point(802, 36);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(90, 23);
             this.label6.TabIndex = 56;
@@ -157,34 +206,11 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(439, 136);
+            this.label7.Location = new System.Drawing.Point(439, 135);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(106, 23);
             this.label7.TabIndex = 65;
             this.label7.Text = "Password:";
-            // 
-            // txtAge
-            // 
-            this.txtAge.BorderColor = System.Drawing.Color.Black;
-            this.txtAge.BorderRadius = 11;
-            this.txtAge.BorderThickness = 2;
-            this.txtAge.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.txtAge.DefaultText = "";
-            this.txtAge.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.txtAge.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.txtAge.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtAge.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtAge.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtAge.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtAge.ForeColor = System.Drawing.Color.Black;
-            this.txtAge.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtAge.Location = new System.Drawing.Point(551, 20);
-            this.txtAge.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.txtAge.Name = "txtAge";
-            this.txtAge.PlaceholderText = "";
-            this.txtAge.SelectedText = "";
-            this.txtAge.Size = new System.Drawing.Size(169, 40);
-            this.txtAge.TabIndex = 178;
             // 
             // txtUserName
             // 
@@ -206,14 +232,14 @@
             this.txtUserName.Name = "txtUserName";
             this.txtUserName.PlaceholderText = "";
             this.txtUserName.SelectedText = "";
-            this.txtUserName.Size = new System.Drawing.Size(169, 40);
+            this.txtUserName.Size = new System.Drawing.Size(169, 39);
             this.txtUserName.TabIndex = 179;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(422, 88);
+            this.label3.Location = new System.Drawing.Point(421, 89);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(123, 23);
             this.label3.TabIndex = 45;
@@ -223,11 +249,11 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(459, 37);
+            this.label5.Location = new System.Drawing.Point(435, 36);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(57, 23);
+            this.label5.Size = new System.Drawing.Size(109, 23);
             this.label5.TabIndex = 42;
-            this.label5.Text = "Age:";
+            this.label5.Text = "Birth Date:";
             // 
             // txtFirstName
             // 
@@ -249,7 +275,7 @@
             this.txtFirstName.Name = "txtFirstName";
             this.txtFirstName.PlaceholderText = "";
             this.txtFirstName.SelectedText = "";
-            this.txtFirstName.Size = new System.Drawing.Size(169, 40);
+            this.txtFirstName.Size = new System.Drawing.Size(169, 39);
             this.txtFirstName.TabIndex = 175;
             // 
             // txtLastName
@@ -272,7 +298,7 @@
             this.txtLastName.Name = "txtLastName";
             this.txtLastName.PlaceholderText = "";
             this.txtLastName.SelectedText = "";
-            this.txtLastName.Size = new System.Drawing.Size(169, 40);
+            this.txtLastName.Size = new System.Drawing.Size(169, 39);
             this.txtLastName.TabIndex = 176;
             // 
             // txtContact
@@ -296,14 +322,14 @@
             this.txtContact.Name = "txtContact";
             this.txtContact.PlaceholderText = "";
             this.txtContact.SelectedText = "";
-            this.txtContact.Size = new System.Drawing.Size(169, 40);
+            this.txtContact.Size = new System.Drawing.Size(169, 39);
             this.txtContact.TabIndex = 177;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(15, 136);
+            this.label8.Location = new System.Drawing.Point(15, 135);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(179, 23);
             this.label8.TabIndex = 82;
@@ -313,7 +339,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(55, 88);
+            this.label2.Location = new System.Drawing.Point(55, 89);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(119, 23);
             this.label2.TabIndex = 78;
@@ -329,6 +355,30 @@
             this.label4.TabIndex = 77;
             this.label4.Text = "First Name:";
             // 
+            // txtAge
+            // 
+            this.txtAge.BorderColor = System.Drawing.Color.Black;
+            this.txtAge.BorderRadius = 11;
+            this.txtAge.BorderThickness = 2;
+            this.txtAge.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtAge.DefaultText = "";
+            this.txtAge.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.txtAge.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.txtAge.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtAge.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtAge.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtAge.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtAge.ForeColor = System.Drawing.Color.Black;
+            this.txtAge.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtAge.Location = new System.Drawing.Point(1056, 94);
+            this.txtAge.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtAge.Name = "txtAge";
+            this.txtAge.PlaceholderText = "";
+            this.txtAge.SelectedText = "";
+            this.txtAge.Size = new System.Drawing.Size(54, 22);
+            this.txtAge.TabIndex = 178;
+            this.txtAge.Visible = false;
+            // 
             // btnProceed
             // 
             this.btnProceed.BorderRadius = 11;
@@ -340,7 +390,8 @@
             this.btnProceed.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(73)))), ((int)(((byte)(89)))), ((int)(((byte)(124)))));
             this.btnProceed.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnProceed.ForeColor = System.Drawing.Color.White;
-            this.btnProceed.Location = new System.Drawing.Point(222, 135);
+            this.btnProceed.Location = new System.Drawing.Point(221, 135);
+            this.btnProceed.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnProceed.Name = "btnProceed";
             this.btnProceed.Size = new System.Drawing.Size(177, 47);
             this.btnProceed.TabIndex = 182;
@@ -358,7 +409,8 @@
             this.btnCancel.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(99)))), ((int)(((byte)(99)))));
             this.btnCancel.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCancel.ForeColor = System.Drawing.Color.White;
-            this.btnCancel.Location = new System.Drawing.Point(994, 123);
+            this.btnCancel.Location = new System.Drawing.Point(995, 123);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(57, 47);
             this.btnCancel.TabIndex = 172;
@@ -373,8 +425,9 @@
             this.panel1.Controls.Add(this.label1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1141, 52);
+            this.panel1.Size = new System.Drawing.Size(1184, 52);
             this.panel1.TabIndex = 5;
             // 
             // guna2ControlBox1
@@ -382,9 +435,10 @@
             this.guna2ControlBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.guna2ControlBox1.FillColor = System.Drawing.Color.IndianRed;
             this.guna2ControlBox1.IconColor = System.Drawing.Color.White;
-            this.guna2ControlBox1.Location = new System.Drawing.Point(1103, 0);
+            this.guna2ControlBox1.Location = new System.Drawing.Point(1146, 0);
+            this.guna2ControlBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.guna2ControlBox1.Name = "guna2ControlBox1";
-            this.guna2ControlBox1.Size = new System.Drawing.Size(38, 24);
+            this.guna2ControlBox1.Size = new System.Drawing.Size(37, 25);
             this.guna2ControlBox1.TabIndex = 79;
             // 
             // label1
@@ -401,9 +455,10 @@
             // 
             this.panel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(99)))), ((int)(((byte)(99)))));
             this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel3.Location = new System.Drawing.Point(0, 760);
+            this.panel3.Location = new System.Drawing.Point(0, 823);
+            this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(1141, 10);
+            this.panel3.Size = new System.Drawing.Size(1184, 10);
             this.panel3.TabIndex = 57;
             // 
             // btnDelete
@@ -417,7 +472,8 @@
             this.btnDelete.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(205)))), ((int)(((byte)(99)))), ((int)(((byte)(99)))));
             this.btnDelete.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDelete.ForeColor = System.Drawing.Color.White;
-            this.btnDelete.Location = new System.Drawing.Point(682, 135);
+            this.btnDelete.Location = new System.Drawing.Point(683, 135);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(177, 47);
             this.btnDelete.TabIndex = 174;
@@ -436,6 +492,7 @@
             this.btnUpdate.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnUpdate.ForeColor = System.Drawing.Color.White;
             this.btnUpdate.Location = new System.Drawing.Point(453, 135);
+            this.btnUpdate.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(177, 47);
             this.btnUpdate.TabIndex = 175;
@@ -477,31 +534,65 @@
             this.label9.Text = "Search User:";
             this.label9.Click += new System.EventHandler(this.label9_Click);
             // 
-            // chkShowPassword
+            // guna2CheckBox1
             // 
-            this.chkShowPassword.AutoSize = true;
-            this.chkShowPassword.CheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.chkShowPassword.CheckedState.BorderRadius = 0;
-            this.chkShowPassword.CheckedState.BorderThickness = 0;
-            this.chkShowPassword.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.chkShowPassword.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkShowPassword.Location = new System.Drawing.Point(741, 135);
-            this.chkShowPassword.Name = "chkShowPassword";
-            this.chkShowPassword.Size = new System.Drawing.Size(142, 24);
-            this.chkShowPassword.TabIndex = 182;
-            this.chkShowPassword.Text = "Showpassword";
-            this.chkShowPassword.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
-            this.chkShowPassword.UncheckedState.BorderRadius = 0;
-            this.chkShowPassword.UncheckedState.BorderThickness = 0;
-            this.chkShowPassword.UncheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
-            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.chkShowPassword_CheckedChanged);
+            this.guna2CheckBox1.AutoSize = true;
+            this.guna2CheckBox1.CheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2CheckBox1.CheckedState.BorderRadius = 0;
+            this.guna2CheckBox1.CheckedState.BorderThickness = 0;
+            this.guna2CheckBox1.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2CheckBox1.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2CheckBox1.Location = new System.Drawing.Point(1017, 119);
+            this.guna2CheckBox1.Name = "guna2CheckBox1";
+            this.guna2CheckBox1.Size = new System.Drawing.Size(71, 24);
+            this.guna2CheckBox1.TabIndex = 191;
+            this.guna2CheckBox1.Text = "Show";
+            this.guna2CheckBox1.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.guna2CheckBox1.UncheckedState.BorderRadius = 0;
+            this.guna2CheckBox1.UncheckedState.BorderThickness = 0;
+            this.guna2CheckBox1.UncheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(125)))), ((int)(((byte)(137)))), ((int)(((byte)(149)))));
+            this.guna2CheckBox1.CheckedChanged += new System.EventHandler(this.guna2CheckBox1_CheckedChanged);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Century Gothic", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(752, 89);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(161, 19);
+            this.label10.TabIndex = 190;
+            this.label10.Text = "Confirm Password:";
+            // 
+            // txtConfirmPassword
+            // 
+            this.txtConfirmPassword.BorderColor = System.Drawing.Color.Black;
+            this.txtConfirmPassword.BorderRadius = 11;
+            this.txtConfirmPassword.BorderThickness = 2;
+            this.txtConfirmPassword.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.txtConfirmPassword.DefaultText = "";
+            this.txtConfirmPassword.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.txtConfirmPassword.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.txtConfirmPassword.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtConfirmPassword.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtConfirmPassword.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtConfirmPassword.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtConfirmPassword.ForeColor = System.Drawing.Color.Black;
+            this.txtConfirmPassword.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtConfirmPassword.Location = new System.Drawing.Point(919, 72);
+            this.txtConfirmPassword.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.txtConfirmPassword.Name = "txtConfirmPassword";
+            this.txtConfirmPassword.PlaceholderText = "";
+            this.txtConfirmPassword.SelectedText = "";
+            this.txtConfirmPassword.Size = new System.Drawing.Size(169, 40);
+            this.txtConfirmPassword.TabIndex = 189;
+            this.txtConfirmPassword.UseSystemPasswordChar = true;
             // 
             // UserRegistration
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1141, 770);
+            this.ClientSize = new System.Drawing.Size(1184, 833);
             this.Controls.Add(this.txtSearchUser);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.btnUpdate);
@@ -509,9 +600,11 @@
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
+            this.Controls.Add(this.txtAge);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnProceed);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "UserRegistration";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "UserRegistration";
@@ -555,5 +648,9 @@
         private System.Windows.Forms.Label label9;
         private Guna.UI2.WinForms.Guna2ComboBox cmbRole;
         private Guna.UI2.WinForms.Guna2CheckBox chkShowPassword;
+        private Guna.UI2.WinForms.Guna2DateTimePicker dtpBirthDate;
+        private Guna.UI2.WinForms.Guna2CheckBox guna2CheckBox1;
+        private System.Windows.Forms.Label label10;
+        private Guna.UI2.WinForms.Guna2TextBox txtConfirmPassword;
     }
 }

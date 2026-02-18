@@ -132,13 +132,14 @@ namespace Sales_Inventory
                         if (dgvUsers.Columns.Contains("UserID"))
                             dgvUsers.Columns["UserID"].Visible = false;
 
-                        if (dgvUsers.Columns.Contains("PasswordHash"))
-                            dgvUsers.Columns["PasswordHash"].Visible = false;
+                        //if (dgvUsers.Columns.Contains("PasswordHash"))
+                        //    dgvUsers.Columns["PasswordHash"].Visible = false;
 
                         // 🔹 Adjust display headers
                         dgvUsers.Columns["Username"].HeaderText = "Username";
+                        dgvUsers.Columns["PasswordHash"].HeaderText = "Password";
                         dgvUsers.Columns["FullName"].HeaderText = "Full Name";
-                        dgvUsers.Columns["Age"].HeaderText = "Age";
+                        dgvUsers.Columns["Age"].HeaderText = "Birth Date";
                         dgvUsers.Columns["ContactNumber"].HeaderText = "Contact No.";                   
                         dgvUsers.Columns["Role"].HeaderText = "Role";
                         dgvUsers.Columns["Status"].HeaderText = "Status";
@@ -163,7 +164,7 @@ namespace Sales_Inventory
 
         private void UserRegistration_Load(object sender, EventArgs e)
         {
-           
+            dtpBirthDate.Value = DateTime.Today;
 
             txtPassword.UseSystemPasswordChar = true;
             // Restrict inputs (letters, spaces, ., , , - only)
@@ -280,9 +281,36 @@ namespace Sales_Inventory
                 e.Handled = true; // block lahat ng hindi letter at control
             }
         }
+        private void SetRoleComboBox(string role)
+        {
+            cmbRole.Items.Clear();
 
+            // default roles
+            cmbRole.Items.Add("Staff");
+            cmbRole.Items.Add("Cashier");
 
-       
+            if (role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                // show Admin but lock it
+                cmbRole.Items.Insert(0, "Admin");
+                cmbRole.SelectedItem = "Admin";
+                cmbRole.Enabled = false; // 🔒 bawal palitan
+            }
+            else
+            {
+                cmbRole.Enabled = true;
+
+                // safety check
+                if (cmbRole.Items.Contains(role))
+                {
+                    cmbRole.SelectedItem = role;
+                }
+                else
+                {
+                    cmbRole.SelectedIndex = -1;
+                }
+            }
+        }
 
         private void dgvUsers_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -311,10 +339,30 @@ namespace Sales_Inventory
                     // ✅ Fill the textboxes
                     selectedUserId = Convert.ToInt32(row.Cells["UserID"].Value);
                     txtUserName.Text = row.Cells["Username"].Value?.ToString();
-                  //  txtPassword.Text = row.Cells["PasswordHash"].Value?.ToString();
-                    txtAge.Text = row.Cells["Age"].Value?.ToString();
-                    txtContact.Text = row.Cells["ContactNumber"].Value?.ToString();    
-                    cmbRole.Text = row.Cells["Role"].Value?.ToString();
+                    txtPassword.Text = row.Cells["PasswordHash"].Value?.ToString();
+                    //  txtPassword.Text = row.Cells["PasswordHash"].Value?.ToString();
+                    //dtpBirthDate.Text = row.Cells["Age"].Value?.ToString();
+                    //if (row.Cells["Age"].Value != DBNull.Value)
+                    //{
+                    //    dtpBirthDate.Value = Convert.ToDateTime(row.Cells["Age"].Value);
+                    //}
+                    //else
+                    //{
+                    //    dtpBirthDate.Value = DateTime.Today; // or any default
+                    //}
+                    if (row.Cells["Age"].Value != DBNull.Value)
+                    {
+                        dtpBirthDate.Value = Convert.ToDateTime(row.Cells["Age"].Value);
+                    }
+                    else
+                    {
+                        dtpBirthDate.Value = DateTime.Today;
+                    }
+
+                    txtContact.Text = row.Cells["ContactNumber"].Value?.ToString();
+                    //  cmbRole.Text = row.Cells["Role"].Value?.ToString();
+                    string role = row.Cells["Role"].Value?.ToString() ?? "";
+                    SetRoleComboBox(role);
 
                     // Split fullname into first and last name (optional)
                     string fullName = row.Cells["FullName"].Value?.ToString() ?? "";
@@ -341,17 +389,17 @@ namespace Sales_Inventory
         {
             return Regex.Replace(input.Trim(), @"[;'""]", ""); // remove quotes & semicolons
         }
-        private string HashPassword(string password)
-        {
-            using (SHA256 sha = SHA256.Create())
-            {
-                byte[] bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
-                StringBuilder builder = new StringBuilder();
-                foreach (byte b in bytes)
-                    builder.Append(b.ToString("x2"));
-                return builder.ToString();
-            }
-        }
+        //private string HashPassword(string password)
+        //{
+        //    using (SHA256 sha = SHA256.Create())
+        //    {
+        //        byte[] bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(password));
+        //        StringBuilder builder = new StringBuilder();
+        //        foreach (byte b in bytes)
+        //            builder.Append(b.ToString("x2"));
+        //        return builder.ToString();
+        //    }
+        //}
 
 
         private void btnProceed_Click(object sender, EventArgs e)
@@ -363,29 +411,38 @@ namespace Sales_Inventory
                     string.IsNullOrWhiteSpace(txtLastName.Text) ||
                     string.IsNullOrWhiteSpace(txtUserName.Text) ||
                     string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                    string.IsNullOrWhiteSpace(txtAge.Text) ||
                     string.IsNullOrWhiteSpace(txtContact.Text))
                 {
                     MessageBox.Show("Please fill in all required fields.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // ✅ 2. Validate age
-                if (!int.TryParse(txtAge.Text.Trim(), out int age))
+                // ✅ 2. Validate birth date / age using DateTimePicker
+                DateTime birthDate = dtpBirthDate.Value.Date;
+
+                // Birth date cannot be in the future
+                if (birthDate > DateTime.Today)
                 {
-                    MessageBox.Show("Please enter a valid age.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Invalid birth date. Please select a valid date.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
+                }
+
+                // Calculate age
+                int age = DateTime.Today.Year - birthDate.Year;
+                if (birthDate > DateTime.Today.AddYears(-age))
+                {
+                    age--;
                 }
 
                 if (age < 18)
                 {
-                    MessageBox.Show("Age must be at least 18 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("User must be at least 18 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (age > 50)
                 {
-                    MessageBox.Show("Age cannot be greater than 50 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("User cannot be older than 50 years.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -396,10 +453,23 @@ namespace Sales_Inventory
                 }
 
 
-                // ✅ 3. Validate password strength
+                // 3️⃣ Validate password length
                 if (txtPassword.Text.Length < 6)
                 {
-                    MessageBox.Show("Password must be at least 6 characters long.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Password must be at least 6 characters long.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 3.1️⃣ Confirm password match
+                if (txtPassword.Text.Trim() != txtConfirmPassword.Text.Trim())
+                {
+                    MessageBox.Show("Passwords do not match.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -453,17 +523,21 @@ namespace Sales_Inventory
                     string fullName = $"{txtFirstName.Text.Trim()} {txtLastName.Text.Trim()}";
 
                     // ✅ 8. Insert query
-                    string insertQuery = @"INSERT INTO users (Username, PasswordHash, FullName, Age, ContactNumber, Role, Status, DateCreated)
-                       VALUES (@Username, @PasswordHash, @FullName, @Age, @ContactNumber, @Role, @Status, NOW())";
+                    string insertQuery = @"INSERT INTO users 
+                                    (Username, PasswordHash, FullName, Age, ContactNumber, Role, Status, DateCreated)
+                                    VALUES 
+                                    (@Username, @PasswordHash, @FullName, @Age, @ContactNumber, @Role, @Status, NOW())";
+
 
 
                     using (var cmd = new MySqlCommand(insertQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@Username", sanitize(txtUserName.Text));
-                        cmd.Parameters.AddWithValue("@PasswordHash", HashPassword(txtPassword.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@PasswordHash", txtPassword.Text.Trim());
 
                         cmd.Parameters.AddWithValue("@FullName", sanitize(fullName));
-                        cmd.Parameters.AddWithValue("@Age", txtAge.Text.Trim());
+                        cmd.Parameters.AddWithValue("@Age", DateTime.Now);
+
                         cmd.Parameters.AddWithValue("@ContactNumber", contact);
                         cmd.Parameters.AddWithValue("@Role", cmbRole.Text.Trim());
                         cmd.Parameters.AddWithValue("@Status", "Active");
@@ -503,76 +577,57 @@ namespace Sales_Inventory
                 if (string.IsNullOrWhiteSpace(txtFirstName.Text) ||
                     string.IsNullOrWhiteSpace(txtLastName.Text) ||
                     string.IsNullOrWhiteSpace(txtUserName.Text) ||
-                
-                    string.IsNullOrWhiteSpace(txtAge.Text) ||
                     string.IsNullOrWhiteSpace(txtContact.Text))
                 {
                     MessageBox.Show("Please fill in all required fields.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // ✅ 2. Validate age
-                if (!int.TryParse(txtAge.Text.Trim(), out int age))
+                // ✅ 3. Validate birth date / age using DateTimePicker
+                DateTime birthDate = dtpBirthDate.Value.Date;
+
+                // Birth date cannot be in the future
+                if (birthDate > DateTime.Today)
                 {
-                    MessageBox.Show("Please enter a valid age.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Invalid birth date. Please select a valid date.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
+                }
+
+                // Calculate age
+                int age = DateTime.Today.Year - birthDate.Year;
+                if (birthDate > DateTime.Today.AddYears(-age))
+                {
+                    age--;
                 }
 
                 if (age < 18)
                 {
-                    MessageBox.Show("Age must be at least 18 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("User must be at least 18 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (age > 50)
                 {
-                    MessageBox.Show("Age cannot be greater than 50 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("User cannot be older than 50 years.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
+                // ✅ 4. Validate role selection
+                string newRole = cmbRole.Text.Trim();
                 if (cmbRole.SelectedIndex == -1)
                 {
                     MessageBox.Show("Please select a valid role (Staff or Cashier).", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // ✅ 4. Validate password strength
-                if (txtPassword.Text.Length > 0 && txtPassword.Text.Length < 6)
-                {
-                    MessageBox.Show("Password must be at least 6 characters long.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-
-                // ✅ 5. Validate username format
-                if (!System.Text.RegularExpressions.Regex.IsMatch(txtUserName.Text, @"^[a-zA-Z0-9_]+$"))
-                {
-                    MessageBox.Show("Username can only contain letters, numbers, and underscores.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                // ✅ 6. Validate contact number (must be 11 digits and start with 09)
-                string contact = txtContact.Text.Trim();
-                if (!System.Text.RegularExpressions.Regex.IsMatch(contact, @"^09\d{9}$"))
-                {
-                    MessageBox.Show("Contact number must be 11 digits and start with '09'.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                string newUsername = txtUserName.Text.Trim();
-                string newPassword = txtPassword.Text.Trim();
-                string newFullName = $"{txtFirstName.Text.Trim()} {txtLastName.Text.Trim()}";
-                string newAge = txtAge.Text.Trim();
-                string newRole = cmbRole.Text.Trim();
-                string newStatus = "Active"; // default status
-
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
                 {
                     con.Open();
 
-                    // ✅ 7. Fetch existing user data
+                    // ✅ 5. Fetch existing user data
                     string selectQuery = "SELECT Username, PasswordHash, FullName, Age, ContactNumber, Role, Status FROM users WHERE UserID = @UserID";
-                    string oldUsername = "", oldPassword = "", oldFullName = "", oldAge = "", oldContact = "", oldRole = "", oldStatus = "";
+                    string oldUsername = "", oldPassword = "", oldFullName = "", oldRole = "", oldContact = "", oldStatus = "";
+                    DateTime oldBirthDate = DateTime.MinValue;
 
                     using (var selectCmd = new MySqlCommand(selectQuery, con))
                     {
@@ -584,7 +639,7 @@ namespace Sales_Inventory
                                 oldUsername = reader["Username"].ToString();
                                 oldPassword = reader["PasswordHash"].ToString();
                                 oldFullName = reader["FullName"].ToString();
-                                oldAge = reader["Age"].ToString();
+                                oldBirthDate = reader["Age"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["Age"]);
                                 oldContact = reader["ContactNumber"].ToString();
                                 oldRole = reader["Role"].ToString();
                                 oldStatus = reader["Status"].ToString();
@@ -592,11 +647,23 @@ namespace Sales_Inventory
                         }
                     }
 
-                    // ✅ 8. Check if any change is made
+                    // ✅ 6. Prevent changing Admin role
+                    if (oldRole.Equals("Admin", StringComparison.OrdinalIgnoreCase) && !newRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("The Admin role cannot be changed.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // ✅ 7. Check if any changes were made
+                    string newFullName = $"{txtFirstName.Text.Trim()} {txtLastName.Text.Trim()}";
+                    string newUsername = txtUserName.Text.Trim();
+                    string contact = txtContact.Text.Trim();
+                    string newStatus = "Active"; // default
+
                     if (newUsername == oldUsername &&
-                        newPassword == oldPassword &&
+                        oldPassword == /*HashPassword*/(txtPassword.Text.Trim()) &&
                         newFullName == oldFullName &&
-                        newAge == oldAge &&
+                        birthDate == oldBirthDate &&
                         contact == oldContact &&
                         newRole == oldRole &&
                         newStatus == oldStatus)
@@ -605,7 +672,7 @@ namespace Sales_Inventory
                         return;
                     }
 
-                    // ✅ 9. Check if username already exists (exclude current user)
+                    // ✅ 8. Check if username already exists (exclude current user)
                     string checkQuery = "SELECT COUNT(*) FROM users WHERE Username = @Username AND UserID <> @UserID";
                     using (var checkCmd = new MySqlCommand(checkQuery, con))
                     {
@@ -618,7 +685,8 @@ namespace Sales_Inventory
                             return;
                         }
                     }
-                    // ✅ 10. Check if contact number already exists (exclude current user)
+
+                    // ✅ 9. Check if contact number already exists (exclude current user)
                     string checkContactQuery = "SELECT COUNT(*) FROM users WHERE ContactNumber = @ContactNumber AND UserID <> @UserID";
                     using (var checkCmd = new MySqlCommand(checkContactQuery, con))
                     {
@@ -646,10 +714,9 @@ namespace Sales_Inventory
                     using (var cmd = new MySqlCommand(updateQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@Username", newUsername);
-                        cmd.Parameters.AddWithValue("@PasswordHash", HashPassword(newPassword));
-
+                        cmd.Parameters.AddWithValue("@PasswordHash",/* HashPassword*/(txtPassword.Text.Trim()));
                         cmd.Parameters.AddWithValue("@FullName", newFullName);
-                        cmd.Parameters.AddWithValue("@Age", newAge);
+                        cmd.Parameters.AddWithValue("@Age", birthDate);
                         cmd.Parameters.AddWithValue("@ContactNumber", contact);
                         cmd.Parameters.AddWithValue("@Role", newRole);
                         cmd.Parameters.AddWithValue("@Status", newStatus);
@@ -779,13 +846,14 @@ namespace Sales_Inventory
                         if (dgvUsers.Columns.Contains("UserID"))
                             dgvUsers.Columns["UserID"].Visible = false;
 
-                        if (dgvUsers.Columns.Contains("PasswordHash"))
-                            dgvUsers.Columns["PasswordHash"].Visible = false;
+                        //if (dgvUsers.Columns.Contains("PasswordHash"))
+                        //    dgvUsers.Columns["PasswordHash"].Visible = false;
 
                         // 🔹 Adjust display headers
                         dgvUsers.Columns["Username"].HeaderText = "Username";
+                        dgvUsers.Columns["PasswordHash"].HeaderText = "Password";
                         dgvUsers.Columns["FullName"].HeaderText = "Full Name";
-                        dgvUsers.Columns["Age"].HeaderText = "Age";
+                        dgvUsers.Columns["Age"].HeaderText = "Birth Date";
                         dgvUsers.Columns["ContactNumber"].HeaderText = "Contact No.";
                         dgvUsers.Columns["Role"].HeaderText = "Role";
                         dgvUsers.Columns["Status"].HeaderText = "Status";
@@ -807,6 +875,16 @@ namespace Sales_Inventory
         private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void guna2CheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            txtConfirmPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
     }
 }

@@ -93,6 +93,7 @@ namespace Sales_Inventory
             // 🟨 Prevent automatic selection of first row
           
             LoadTransactions();
+            dtDate.Value = DateTime.Today;
             dgvTransactionItems.ClearSelection();
             dgvTransactionItems.CurrentCell = null;
             dgvTransactions.ClearSelection();
@@ -302,7 +303,7 @@ namespace Sales_Inventory
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
             {
                 con.Open();
-                string checkPwd = "SELECT FullName FROM users WHERE Username='admin' AND PasswordHash=@p LIMIT 1";
+                string checkPwd = "SELECT FullName FROM users WHERE Role='Admin' AND PasswordHash=@p LIMIT 1";
                 using (var cmd = new MySqlCommand(checkPwd, con))
                 {
                     cmd.Parameters.AddWithValue("@p", hashedPassword);
@@ -640,7 +641,7 @@ namespace Sales_Inventory
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
             {
                 con.Open();
-                string checkPwd = "SELECT FullName FROM users WHERE Username='admin' AND PasswordHash=@p LIMIT 1";
+                string checkPwd = "SELECT FullName FROM users WHERE Role='Admin' AND PasswordHash=@p LIMIT 1";
                 using (var cmd = new MySqlCommand(checkPwd, con))
                 {
                     cmd.Parameters.AddWithValue("@p", hashedPassword);

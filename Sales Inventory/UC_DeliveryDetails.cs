@@ -206,6 +206,8 @@ namespace Sales_Inventory
 
         private void UC_DeliveryDetails_Load(object sender, EventArgs e)
         {
+            dtpTo.Value = DateTime.Today;
+            dtpFrom.Value = DateTime.Today;
             dgvDeliveries.ClearSelection();
             dgvDeliveries.CurrentCell = null;
             dgvDeliveryDetails.ClearSelection();

@@ -86,14 +86,54 @@ namespace Sales_Inventory
             }
         }
 
-        // 🔹 Digits only (ContactNumber)
         private void DigitsOnly_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            TextBox tb = sender as TextBox;
+
+            // allow control keys (Backspace, Delete, etc.)
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            // allow digits
+            if (char.IsDigit(e.KeyChar))
             {
-                e.Handled = true;
+                // check 2 decimal places max
+                if (tb.Text.Contains("."))
+                {
+                    int index = tb.Text.IndexOf(".");
+                    if (tb.SelectionStart > index &&
+                        tb.Text.Length - index > 2)
+                    {
+                        e.Handled = true;
+                    }
+                }
+                return;
             }
+
+            // allow ONE decimal point
+            if (e.KeyChar == '.')
+            {
+                // bawal kung may "." na
+                if (tb.Text.Contains("."))
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                // bawal kung unang character
+                if (tb.SelectionStart == 0)
+                {
+                    e.Handled = true;
+                    return;
+                }
+
+                return;
+            }
+
+            // block everything else
+            e.Handled = true;
         }
+
         private void BlockCopyPaste_KeyDown(object sender, KeyEventArgs e)
         {
             if ((e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X)) ||

@@ -143,24 +143,60 @@ namespace Sales_Inventory
                     string.IsNullOrWhiteSpace(txtLastName.Text) ||
                     string.IsNullOrWhiteSpace(txtUserName.Text) ||
                     string.IsNullOrWhiteSpace(txtPassword.Text) ||
-                    string.IsNullOrWhiteSpace(txtAge.Text) ||
+                    string.IsNullOrWhiteSpace(dtpBirthDate.Text) ||
                     string.IsNullOrWhiteSpace(txtContact.Text))
                 {
                     MessageBox.Show("Please fill in all required fields.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // 2. Validate age
-                if (!int.TryParse(txtAge.Text.Trim(), out int age) || age < 18 || age > 50)
+
+                // ✅ 2. Validate birth date / age using DateTimePicker
+                DateTime birthDate = dtpBirthDate.Value.Date;
+
+                // Birth date cannot be in the future
+                if (birthDate > DateTime.Today)
                 {
-                    MessageBox.Show("Age must be between 18 and 50 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Invalid birth date. Please select a valid date.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // 3. Validate password length
+                // Calculate age
+                int age = DateTime.Today.Year - birthDate.Year;
+                if (birthDate > DateTime.Today.AddYears(-age))
+                {
+                    age--;
+                }
+
+                if (age < 18)
+                {
+                    MessageBox.Show("User must be at least 18 years old.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (age > 50)
+                {
+                    MessageBox.Show("User cannot be older than 50 years.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 3️⃣ Validate password length
                 if (txtPassword.Text.Length < 6)
                 {
-                    MessageBox.Show("Password must be at least 6 characters long.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Password must be at least 6 characters long.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 3.1️⃣ Confirm password match
+                if (txtPassword.Text.Trim() != txtConfirmPassword.Text.Trim())
+                {
+                    MessageBox.Show("Passwords do not match.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -217,9 +253,9 @@ namespace Sales_Inventory
                     using (var cmd = new MySqlCommand(insertQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@Username", txtUserName.Text.Trim());
-                        cmd.Parameters.AddWithValue("@PasswordHash", HashPassword(txtPassword.Text.Trim()));
+                        cmd.Parameters.AddWithValue("@PasswordHash", txtPassword.Text.Trim());
                         cmd.Parameters.AddWithValue("@FullName", fullName);
-                        cmd.Parameters.AddWithValue("@Age", age);
+                        cmd.Parameters.AddWithValue("@Age", DateTime.Now);
                         cmd.Parameters.AddWithValue("@ContactNumber", contact);
                         cmd.Parameters.AddWithValue("@Role", userRole); // fixed
                         cmd.Parameters.AddWithValue("@Status", "Active");
@@ -244,15 +280,15 @@ namespace Sales_Inventory
 
 
         // SHA256 password hashing
-        private string HashPassword(string password)
-        {
-            using (var sha = System.Security.Cryptography.SHA256.Create())
-            {
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(password);
-                byte[] hash = sha.ComputeHash(bytes);
-                return BitConverter.ToString(hash).Replace("-", "").ToLower();
-            }
-        }
+        //private string HashPassword(string password)
+        //{
+        //    using (var sha = System.Security.Cryptography.SHA256.Create())
+        //    {
+        //        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(password);
+        //        byte[] hash = sha.ComputeHash(bytes);
+        //        return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        //    }
+        //}
 
         private void AdminRegistrationcs_Load(object sender, EventArgs e)
         {
@@ -262,6 +298,16 @@ namespace Sales_Inventory
         private void chkShowPassword_CheckedChanged(object sender, EventArgs e)
         {
             txtPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
+        }
+
+        private void txtConfirmPassword_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2CheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            txtConfirmPassword.UseSystemPasswordChar = !chkShowPassword.Checked;
         }
     }
 }

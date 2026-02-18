@@ -28,6 +28,8 @@ namespace Sales_Inventory
 
         private void ShiftLogs_Load(object sender, EventArgs e)
         {
+            dtpFrom.Value = DateTime.Today;
+            dtpTo.Value = DateTime.Today;
             DateTime fromDate = dtpFrom.Value.Date; // Get the selected start date
             DateTime toDate = dtpTo.Value.Date.AddDays(1).AddSeconds(-1); // Get the selected end date (full day)
 

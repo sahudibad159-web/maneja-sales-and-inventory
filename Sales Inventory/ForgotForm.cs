@@ -17,7 +17,7 @@ namespace Sales_Inventory
     public partial class ForgotForm : Form
     {
         // IP of phone running SMS Gateway
-        private string phoneIP = "192.168.43.1"; // change to your actual phone IP
+        private string phoneIP = "192.168.1.47"; // change to your actual phone IP
         private int port = 8080;
 
         public ForgotForm()
