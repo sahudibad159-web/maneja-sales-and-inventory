@@ -651,7 +651,7 @@ WHERE idDetail=@idDetail AND ProductID=@productId AND MovementType='OUT'";
                                     remainingQty -= deduct;
 
                                     // Update inventory
-                                    string updateInventory = "UPDATE inventory SET QuantityInStock = QuantityInStock - @qty WHERE ProductID = @productId";
+                                    string updateInventory = "UPDATE inventory SET QuantityInStock = QuantityInStock - @qty WHERE ProductID = @productId AND QuantityInStock >= @qty;";
                                     using (var cmdInv = new MySqlCommand(updateInventory, con, trans))
                                     {
                                         cmdInv.Parameters.AddWithValue("@qty", deduct);
