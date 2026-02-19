@@ -113,19 +113,31 @@ namespace Sales_Inventory
         private void ComputeTotals()
         {
             decimal subTotal = 0;
-            decimal discount = 0;
+            decimal totalDiscountFromGrid = 0;
+            decimal totalRowNetSales = 0; // Ito ang magiging sum ng TotalPriceColumn
             decimal redeemedPoints = 0;
             decimal vatRate = GetVatRateFromDatabase();
 
-            // 1️⃣ Compute subtotal
+            // 1️⃣ Loop sa Grid para kunin ang mga saktong values na na-compute na
             foreach (DataGridViewRow row in dgvProduct.Rows)
             {
-                if (row.Cells["PriceColumn"].Value != null &&
-                    row.Cells["QuantityColumn"].Value != null)
+                if (row.IsNewRow) continue;
+
+                // Kunin ang Subtotal (Price * Qty)
+                decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value ?? 0);
+                int qty = Convert.ToInt32(row.Cells["QuantityColumn"].Value ?? 0);
+                subTotal += price * qty;
+
+                // Kunin ang Discount na na-compute na sa Button Click (e.g., 8.04)
+                if (row.Cells["DiscountColumn"].Value != null)
                 {
-                    decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
-                    int qty = Convert.ToInt32(row.Cells["QuantityColumn"].Value);
-                    subTotal += price * qty;
+                    totalDiscountFromGrid += Convert.ToDecimal(row.Cells["DiscountColumn"].Value);
+                }
+
+                // Kunin ang Total Price ng Row (Dapat ito ay 32.14 sa grid para sa senior)
+                if (row.Cells["TotalPriceColumn"].Value != null)
+                {
+                    totalRowNetSales += Convert.ToDecimal(row.Cells["TotalPriceColumn"].Value);
                 }
             }
 
@@ -137,47 +149,40 @@ namespace Sales_Inventory
             decimal vatExempt = 0;
             decimal total = 0;
 
-            if (isVatExemptApplied) // ✅ Senior / PWD
+            // 2️⃣ Computation Logic
+            if (isVatExemptApplied) // Senior / PWD
             {
-                // STEP 1: Remove VAT
-                vatExempt = subTotal / (1 + vatRate);
+                // Ang VAT Exempt Sales ay ang sum ng (Net Price * Qty) bago ang discount.
+                // Formula: Net Sales sa Grid + Discount na binawas
+                vatExempt = totalRowNetSales + totalDiscountFromGrid;
 
-                // STEP 2: Compute 20% discount from VAT-EXCLUSIVE amount
-                discount = vatExempt * 0.20m;
-
-                // STEP 3: Final total
-                total = vatExempt - discount - redeemedPoints;
-
-                if (total < 0)
-                    total = 0;
+                total = totalRowNetSales - redeemedPoints;
 
                 vatableSales = 0;
                 vatAmount = 0;
             }
-            else // ✅ Regular customer
+            else // Regular Customer
             {
-                if (!string.IsNullOrWhiteSpace(txtDiscount.Text))
-                    discount = Convert.ToDecimal(txtDiscount.Text);
+                // Kapag regular, ang totalRowNetSales ay (Gross - Discount) pa lang.
+                // Dito pa lang natin kukunin ang VAT details.
+                decimal discountedGross = totalRowNetSales;
 
-                total = subTotal - discount - redeemedPoints;
-
-                if (total < 0)
-                    total = 0;
-
-                vatableSales = total / (1 + vatRate);
-                vatAmount = total - vatableSales;
+                vatableSales = Math.Round(discountedGross / (1 + vatRate), 2);
+                vatAmount = discountedGross - vatableSales;
                 vatExempt = 0;
+                total = discountedGross - redeemedPoints;
             }
 
-            // 6️⃣ Update UI
+            if (total < 0) total = 0;
+
+            // 3️⃣ Update UI
             txtSubTotal.Text = subTotal.ToString("N2");
-            txtDiscount.Text = discount.ToString("N2");
+            txtDiscount.Text = totalDiscountFromGrid.ToString("N2");
             txtVatableSales.Text = vatableSales.ToString("N2");
             txtVatAmount.Text = vatAmount.ToString("N2");
             txtVatExempt.Text = vatExempt.ToString("N2");
             txtTotal.Text = total.ToString("N2");
         }
-
 
         bool quantityWarningShown = false;
 
@@ -537,7 +542,7 @@ namespace Sales_Inventory
             // ✅ Numeric formatting
             dgvProduct.Columns["PriceColumn"].DefaultCellStyle.Format = "N2";       // 180.00
             dgvProduct.Columns["TotalPriceColumn"].DefaultCellStyle.Format = "N2";  // 180.00
-            dgvProduct.Columns["DiscountColumn"].DefaultCellStyle.Format = "N0";    // 20
+            dgvProduct.Columns["DiscountColumn"].DefaultCellStyle.Format = "N2";    // 20
 
             ComputeTotals();
         }
@@ -891,6 +896,7 @@ namespace Sales_Inventory
                 if (discountForm.ShowDialog() == DialogResult.OK)
                 {
                     decimal totalDiscount = 0;
+                    isVatExemptApplied = discountForm.IsVatExempt; // I-set ito bago mag-loop
 
                     foreach (var result in discountForm.DiscountedItems)
                     {
@@ -898,20 +904,43 @@ namespace Sales_Inventory
                         decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
                         int qty = Convert.ToInt32(row.Cells["QuantityColumn"].Value);
 
-                        decimal subtotal = (price * qty) - result.DiscountAmount;
-                        row.Cells["TotalPriceColumn"].Value = subtotal;
+                        decimal finalDiscountForRow = 0;
+                        decimal finalRowTotal = 0;
 
-                        // Store applied discount info
-                        row.Cells["DiscountColumn"].Value = result.DiscountAmount;
+                        if (isVatExemptApplied) // Senior / PWD
+                        {
+                            // 1. Kunin ang Net of VAT (45 / 1.12 = 40.18)
+                            decimal netPrice = Math.Round(price / 1.12m, 2);
+
+                            // 2. Compute 20% Discount mula sa Net Price (40.18 * 0.20 = 8.04)
+                            decimal discountPerPiece = Math.Round(netPrice * 0.20m, 2);
+                            finalDiscountForRow = discountPerPiece * qty;
+
+                            // ✅ FIX: Ang Row Total dapat ay (Net Price - Discount)
+                            // (40.18 - 8.04) = 32.14
+                            finalRowTotal = (netPrice * qty) - finalDiscountForRow;
+                        }
+                        else // Regular Discount
+                        {
+                            finalDiscountForRow = Math.Round(result.DiscountAmount, 2);
+                            finalRowTotal = (price * qty) - finalDiscountForRow;
+                        }
+
+                        // 1. Isulat ang discount sa Grid
+                        row.Cells["DiscountColumn"].Value = finalDiscountForRow;
+
+                        // 2. I-update ang Total Price ng row (Dito na lalabas ang 32.14)
+                        row.Cells["TotalPriceColumn"].Value = finalRowTotal;
+
+                        // 3. Store metadata
                         AppliedDiscountType = result.DiscountType;
                         AppliedDiscountFullName = result.DiscountFullName;
                         AppliedDiscountIDNumber = result.DiscountIDNumber;
 
-                        totalDiscount += result.DiscountAmount;
+                        totalDiscount += finalDiscountForRow;
                     }
 
-                    txtDiscount.Text = totalDiscount.ToString("N2");
-                    isVatExemptApplied = discountForm.IsVatExempt;
+                    // 4. Patakbuhin ang ComputeTotals para sa summary boxes
                     ComputeTotals();
                 }
             }
@@ -1048,14 +1077,31 @@ namespace Sales_Inventory
             }
         }
 
-
+        
         private void guna2Button5_Click(object sender, EventArgs e)
         {
+            // 🚫 STOP if no products
+            if (dgvProduct.Rows.Count == 0)
+            {
+                MessageBox.Show("No products in cart!", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Optional: check if total is zero
+            if (decimal.TryParse(txtTotal.Text, out decimal totalCheck) && totalCheck <= 0)
+            {
+                MessageBox.Show("Total amount must be greater than 0.", "Warning",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             decimal total = 0m, vat = 0m, discount = 0m, net = 0m;
-            decimal.TryParse(txtTotal.Text, out total);
+
+            decimal.TryParse(txtSubTotal.Text, out total);
             decimal.TryParse(txtVatAmount.Text, out vat);
             decimal.TryParse(txtDiscount.Text, out discount);
-            decimal.TryParse(txtTotal.Text, out net);
+            decimal.TryParse(txtTotal.Text, out net); // <--- Ito ang dapat na 32
 
             int? memberId = null;
             string memberName = ""; // default empty
@@ -1087,6 +1133,7 @@ namespace Sales_Inventory
 
             Payment popup = new Payment(total, vat, discount, net, dgvProduct, RedeemPoints, MemberId);
 
+            // Pass Member info
             // Pass Member info
             popup.MemberCode = txtMemberID.Text.Trim();
             popup.MemberName = memberName; // ✅ Pass the name
@@ -1395,29 +1442,39 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
         }
         private void ResetPOS()
         {
-            // Clear cart
+            // 1. Clear cart
             dgvProduct.Rows.Clear();
 
-            // Reset all totals
-            txtSubTotal.Text = "0.00";
-            txtDiscount.Text = "0.00";
-            txtVatableSales.Text = "0.00";
-            txtVatAmount.Text = "0.00";
-            txtVatExempt.Text = "0.00";
+            // 2. Clear text fields
             txtTotal.Text = "0.00";
-            txtRedeemedPoints.Text = "0.00";
-            txtQuantity.Text = "";
-
-            // Reset member info
+            txtVatAmount.Text = "0.00";
+            txtDiscount.Text = "0.00";
+            txtPoints.Text = "0";
+            txtSubTotal.Text = "0.00";      // Idagdag mo ito para malinis ang UI
+            txtVatableSales.Text = "0.00";  // Idagdag mo ito
+            txtVatExempt.Text = "0.00";     // Idagdag mo ito
             txtMemberID.Clear();
-            txtMemberID.Enabled = true; // ✅ re-enable for new transaction
+            txtRedeemedPoints.Text = "0";   // Siguraduhing malinis din ang points field
 
+            // 3. Reset numeric variables
+            netAmount = 0m;
+            RedeemPoints = 0m;
+
+            // 4. Reset Boolean Flags
+            isVatExemptApplied = false;    // ⚡ ETO ANG SALARIN: Dapat laging false pag bagong transaction
+
+            // 5. Reset discount info
+            AppliedDiscountType = null;
+            AppliedDiscountFullName = null;
+            AppliedDiscountIDNumber = null;
+
+            // 6. Reset member
             MemberId = null;
+            MemberCode = null;
 
-            netAmount = 0;
+            // 7. Recompute UI
+            ComputeTotals();
         }
-
-
 
         private void label8_Click(object sender, EventArgs e)
         {
@@ -1672,7 +1729,7 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
 
                 // Header
                 string storeName = "MANEJA GROCERY STORE";
-                string storeAddress = "A22 A Reyes, New Lower Bicutan, Taguig City";
+                string storeAddress = "A22 A Reyes, New Lower Bicutan, Taguig City ";
              
 
                 int textWidth = (int)e.Graphics.MeasureString(storeName, fontTitle).Width;
@@ -1924,89 +1981,56 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 con.Open();
 
                 string query = @"
-
-
 SELECT
-    -- 🧾 Gross sales (lahat ng sales kahit may void)
-    IFNULL(SUM(s.TotalAmount),0) AS GrossSales,
+    -- 1. Gross Sales: 150.00 (Lahat ng benta na hindi FULL void)
+    IFNULL(SUM(CASE WHEN s.IsVoided = 0 THEN s.TotalAmount ELSE 0 END), 0) AS GrossSales,
 
-    -- 🎟️ Total discounts (exclude voided sales)
-    IFNULL(SUM(CASE WHEN s.IsVoided=0 THEN s.DiscountAmount ELSE 0 END),0) AS TotalDiscounts,
+    -- 2. Total Discounts: 7.14
+    IFNULL(SUM(CASE WHEN s.IsVoided = 0 THEN s.DiscountAmount ELSE 0 END), 0) AS TotalDiscounts,
 
-    -- 💰 Net sales (non-voided minus partial void)
+    -- 3. Voided Sales: 20.00 (Full voids + Partial voids)
+    (IFNULL(SUM(CASE WHEN s.IsVoided = 1 THEN s.TotalAmount ELSE 0 END), 0) +
+     IFNULL(SUM(CASE WHEN s.IsVoided = 0 THEN (
+            SELECT IFNULL(SUM(sd.VoidedAmount), 0)
+            FROM salesdetails sd
+            WHERE sd.SaleID = s.SaleID
+        ) ELSE 0 END), 0)) AS VoidedSales,
+
+    -- 4. Net Sales: 122.86 (Gross - Discount - Partial Voids)
     IFNULL(SUM(
-        CASE WHEN s.IsVoided=0 
-        THEN s.NetAmount - IFNULL((
+        CASE WHEN s.IsVoided = 0 
+        THEN (s.TotalAmount - s.DiscountAmount) - IFNULL((
             SELECT SUM(sd.VoidedAmount)
             FROM salesdetails sd
             WHERE sd.SaleID = s.SaleID
-        ),0)
+        ), 0)
         ELSE 0 END
-    ),0) AS NetSales,
+    ), 0) AS NetSales,
 
-  -- 🚫 Voided sales (full + partial)
-(
-    -- full voided transactions
-    IFNULL(SUM(CASE WHEN s.IsVoided=1 THEN s.TotalAmount ELSE 0 END),0)
-) +
-(
-    -- partial voided items
+    -- 5. Cash Sales: (Dapat naka-base sa bagong Net Sales logic)
     IFNULL(SUM(
-        CASE WHEN s.IsVoided=0 THEN (
-            SELECT IFNULL(SUM(sd.VoidedAmount),0)
-            FROM salesdetails sd
-            WHERE sd.SaleID = s.SaleID
-        ) ELSE 0 END
-    ),0)
-) AS VoidedSales,
+        CASE WHEN s.IsVoided = 0 AND s.PaymentMethod LIKE '%Cash:%'
+        THEN ((s.TotalAmount - s.DiscountAmount) - IFNULL((SELECT SUM(sd.VoidedAmount) FROM salesdetails sd WHERE sd.SaleID = s.SaleID), 0))
+        * (CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)) / 
+           (IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)), 0), 0) + 
+            IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)), 0), 0) + 
+            IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Points:',-1),';',1)) AS DECIMAL(10,2)), 0), 0)))
+        ELSE 0 END
+    ), 0) AS CashSales,
 
-
-    -- 💵 Cash (non-voided minus partial void)
+    -- 6. GCash Sales
     IFNULL(SUM(
-        CASE 
-            WHEN s.IsVoided=0 AND s.PaymentMethod LIKE '%Cash:%'
-            THEN (s.NetAmount - IFNULL((
-                SELECT SUM(sd.VoidedAmount)
-                FROM salesdetails sd
-                WHERE sd.SaleID = s.SaleID
-            ),0))
-            *
-            (
-                CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)) /
-                (
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)) +
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)) +
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Points:',-1),';',1)) AS DECIMAL(10,2))
-                )
-            )
-            ELSE 0
-        END
-    ),0) AS CashSales,
-
-    -- 📱 GCash proportionate (non-voided minus partial void)
-    IFNULL(SUM(
-        CASE 
-            WHEN s.IsVoided=0 AND s.PaymentMethod LIKE '%GCash:%'
-            THEN (s.NetAmount - IFNULL((
-                SELECT SUM(sd.VoidedAmount)
-                FROM salesdetails sd
-                WHERE sd.SaleID = s.SaleID
-            ),0))
-            *
-            (
-                CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)) /
-                (
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)) +
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)) +
-                    CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Points:',-1),';',1)) AS DECIMAL(10,2))
-                )
-            )
-            ELSE 0
-        END
-    ),0) AS GCashSales,
+        CASE WHEN s.IsVoided = 0 AND s.PaymentMethod LIKE '%GCash:%'
+        THEN ((s.TotalAmount - s.DiscountAmount) - IFNULL((SELECT SUM(sd.VoidedAmount) FROM salesdetails sd WHERE sd.SaleID = s.SaleID), 0))
+        * (CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)) / 
+           (IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Cash:',-1),';',1)) AS DECIMAL(10,2)), 0), 0) + 
+            IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'GCash:',-1),';',1)) AS DECIMAL(10,2)), 0), 0) + 
+            IFNULL(NULLIF(CAST(TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(s.PaymentMethod,'Points:',-1),';',1)) AS DECIMAL(10,2)), 0), 0)))
+        ELSE 0 END
+    ), 0) AS GCashSales,
 
     -- 🪙 Points (non-voided)
-    IFNULL(SUM(CASE WHEN s.IsVoided=0 AND s.PaymentMethod LIKE '%Points:%' THEN s.NetAmount ELSE 0 END),0) AS PointsSales,
+    IFNULL(SUM(CASE WHEN s.IsVoided=0 AND s.PaymentMethod LIKE '%Points:%' THEN (s.TotalAmount - s.DiscountAmount) ELSE 0 END),0) AS PointsSales,
 
     -- Discounts by type
     IFNULL(SUM(CASE WHEN s.DiscountType='SENIOR' AND s.IsVoided=0 THEN s.DiscountAmount ELSE 0 END),0) AS SeniorDiscount,
@@ -2014,10 +2038,10 @@ SELECT
 
 FROM sales s
 WHERE s.TransactionDate BETWEEN @start AND @end
-  AND s.CashierName=@cashier;
+  AND s.CashierName = @cashier;";
 
 
-";
+          
 
                 using (var cmd = new MySqlCommand(query, con))
                 {
@@ -2092,16 +2116,19 @@ WHERE s.TransactionDate BETWEEN @start AND @end
                 {
                     con.Open();
 
-                    // 🔐 3. Hash the entered password using SHA256 (your existing method)
-                    string hashedPassword = HashPassword(enteredPassword);
 
-                    // 🔹 4. Verify admin credentials
-                    string verifyQuery = @"SELECT COUNT(*) FROM Users
-                                   WHERE Role='Admin' AND PasswordHash=@PasswordHash AND Status='Active'";
+                    string verifyQuery = @"SELECT COUNT(*) FROM users 
+                          WHERE Role='Admin' 
+                          AND Status='Active' 
+                          AND PasswordHash = @PasswordHash";
+
                     using (MySqlCommand verifyCmd = new MySqlCommand(verifyQuery, con))
                     {
-                        verifyCmd.Parameters.Add("@PasswordHash", MySqlDbType.VarChar, 64).Value = hashedPassword;
-                        bool isAdminValid = Convert.ToInt32(verifyCmd.ExecuteScalar()) > 0;
+                        // 🔹 3. I-map ang plain text password sa parameter
+                        verifyCmd.Parameters.AddWithValue("@PasswordHash", enteredPassword);
+
+                        int count = Convert.ToInt32(verifyCmd.ExecuteScalar());
+                        bool isAdminValid = count > 0;
 
                         if (!isAdminValid)
                         {
@@ -2109,7 +2136,11 @@ WHERE s.TransactionDate BETWEEN @start AND @end
                                             "Access Denied", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
+
+                        // Kung umabot dito, ibig sabihin tama ang password at active admin siya.
                     }
+                
+            
 
                     // ✅ 5. Admin verified – continue with your existing End Shift logic
                     string cashier = ConnectionModule.Session.FullName;

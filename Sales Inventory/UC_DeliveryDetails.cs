@@ -398,8 +398,8 @@ namespace Sales_Inventory
                         table.AddCell(new Phrase(dr["Remarks"].ToString(), normalFont));
                         table.AddCell(new Phrase(dr["QtyOrdered"].ToString(), normalFont));
                         table.AddCell(new Phrase(dr["QtyDelivered"].ToString(), normalFont));
-                        table.AddCell(new Phrase(Convert.ToDecimal(dr["CostPerItem"]).ToString("C2"), normalFont));
-                        table.AddCell(new Phrase(Convert.ToDecimal(dr["TotalCost"]).ToString("C2"), normalFont));
+                        table.AddCell(new Phrase("P " + Convert.ToDecimal(dr["CostPerItem"]).ToString("N2"), normalFont));
+                        table.AddCell(new Phrase("P " + Convert.ToDecimal(dr["TotalCost"]).ToString("N2"), normalFont));
                     }
                 }
 

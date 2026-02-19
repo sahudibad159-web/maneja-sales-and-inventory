@@ -29,7 +29,26 @@ namespace Sales_Inventory
             dgvStockReport.ClearSelection();
             dgvStockReport.CurrentCell = null;
         }
+        private void FixHeaderTexts(DataGridView dgv)
+        {
+            foreach (DataGridViewColumn col in dgv.Columns)
+            {
+                // Nilalagyan natin ng space ang mga names para mag-wrap (2 lines)
+                if (col.HeaderText == "DeliveryReceipt") col.HeaderText = "Delivery Receipt";
+                if (col.HeaderText == "ProductName") col.HeaderText = "Product Name";
+                if (col.HeaderText == "QtyDelivered") col.HeaderText = "Qty Delivered";
+                if (col.HeaderText == "DeliveryDate") col.HeaderText = "Delivery Date";
+                if (col.HeaderText == "SoldQty") col.HeaderText = "Sold Qty";
+                if (col.HeaderText == "DamageQty") col.HeaderText = "Damage Qty";
+                if (col.HeaderText == "ExpiredQty") col.HeaderText = "Expired Qty";
+                if (col.HeaderText == "RemainingQty") col.HeaderText = "Remaining Qty";
+                if (col.HeaderText == "ExpirationDate") col.HeaderText = "Expiration Date";
 
+                // Isabay na rin ang alignment logic
+                if (col.Name.Contains("Qty") || col.Name.Contains("Remaining") || col.Name.Contains("Damage"))
+                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            }
+        }
 
         private void LoadStockReport(bool showOut = false)
         {
@@ -45,6 +64,7 @@ namespace Sales_Inventory
                         // STOCK IN = deliveries that entered inventory
                         query = @"
 SELECT
+    d.DeliveryReceipt,
     p.ProductName,
     dd.QtyDelivered,
     d.DeliveryDate,
@@ -57,72 +77,51 @@ ORDER BY d.DeliveryDate ASC;";
                     }
                     else
                     {
-                        // STOCK OUT = per batch sold/remaining
-                        //                        query = @"
-                        //SELECT 
-                        //    dd.idDetail,
-                        //    p.ProductName,
-                        //    dd.QtyDelivered,
-                        //    IFNULL(SUM(im.Quantity), 0) AS SoldQty,
-                        //    (dd.QtyDelivered - IFNULL(SUM(im.Quantity),0)) AS RemainingQty,
-                        //    CASE 
-                        //        WHEN (dd.QtyDelivered - IFNULL(SUM(im.Quantity),0)) <= 0 THEN 'Out of stock'
-                        //        ELSE 'Available'
-                        //    END AS Status,
-                        //    dd.ExpirationDate,
-                        //    d.DeliveryDate
-                        //FROM delivery_details dd
-                        //INNER JOIN delivery d ON dd.idDelivery = d.idDelivery
-                        //INNER JOIN product p ON dd.ProductID = p.ProductID
-                        //LEFT JOIN inventory_movements im ON im.idDetail = dd.idDetail AND im.MovementType='OUT'
-                        //GROUP BY dd.idDetail
-                        //ORDER BY d.DeliveryDate ASC;";
+                        // STOCK OUT = remaining stock per batch
                         query = @"
-                    SELECT 
-                        dd.idDetail,
-                        p.ProductName,
-                        dd.QtyDelivered,
-                        IFNULL(SUM(im.Quantity), 0) AS SoldQty,
-                        IFNULL(di.TotalDamaged, 0) AS DamageQty,
-                        IFNULL(ep.Quantity, 0) AS ExpiredQty,
-                        GREATEST(
-                            dd.QtyDelivered 
-                            - IFNULL(SUM(im.Quantity),0) 
-                            - IFNULL(di.TotalDamaged,0) 
-                            - IFNULL(ep.Quantity,0),
-                            0
-                        ) AS RemainingQty,
-                        CASE 
-                            WHEN GREATEST(
-                                     dd.QtyDelivered 
-                                     - IFNULL(SUM(im.Quantity),0) 
-                                     - IFNULL(di.TotalDamaged,0) 
-                                     - IFNULL(ep.Quantity,0), 0
-                                 ) = 0 THEN 'Out of stock'
-                            ELSE 'Available'
-                        END AS Status,
-                        dd.ExpirationDate,
-                        d.DeliveryDate
-                    FROM delivery_details dd
-                    INNER JOIN delivery d ON dd.idDelivery = d.idDelivery
-                    INNER JOIN product p ON dd.ProductID = p.ProductID
-                    LEFT JOIN inventory_movements im 
-                           ON im.idDetail = dd.idDetail AND im.MovementType='OUT'
-                    LEFT JOIN (
-                        SELECT idDetail, SUM(QuantityDamaged) AS TotalDamaged
-                        FROM damaged_items
-                        GROUP BY idDetail
-                    ) di ON di.idDetail = dd.idDetail
-                    LEFT JOIN (
-                        SELECT idDetail, SUM(Quantity) AS Quantity
-                        FROM expired_products
-                        GROUP BY idDetail
-                    ) ep ON ep.idDetail = dd.idDetail
-                    GROUP BY dd.idDetail
-                    ORDER BY d.DeliveryDate ASC;
-
-                    ";
-
+SELECT 
+    d.DeliveryReceipt,
+    dd.idDetail,
+    p.ProductName,
+    dd.QtyDelivered,
+    IFNULL(SUM(im.Quantity), 0) AS SoldQty,
+    IFNULL(di.TotalDamaged, 0) AS DamageQty,
+    IFNULL(ep.Quantity, 0) AS ExpiredQty,
+    GREATEST(
+        dd.QtyDelivered 
+        - IFNULL(SUM(im.Quantity),0) 
+        - IFNULL(di.TotalDamaged,0) 
+        - IFNULL(ep.Quantity,0),
+        0
+    ) AS RemainingQty,
+    CASE 
+        WHEN GREATEST(
+                 dd.QtyDelivered 
+                 - IFNULL(SUM(im.Quantity),0) 
+                 - IFNULL(di.TotalDamaged,0) 
+                 - IFNULL(ep.Quantity,0), 0
+             ) = 0 THEN 'Out of stock'
+        ELSE 'Available'
+    END AS Status,
+    dd.ExpirationDate,
+    d.DeliveryDate
+FROM delivery_details dd
+INNER JOIN delivery d ON dd.idDelivery = d.idDelivery
+INNER JOIN product p ON dd.ProductID = p.ProductID
+LEFT JOIN inventory_movements im 
+       ON im.idDetail = dd.idDetail AND im.MovementType='OUT'
+LEFT JOIN (
+    SELECT idDetail, SUM(QuantityDamaged) AS TotalDamaged
+    FROM damaged_items
+    GROUP BY idDetail
+) di ON di.idDetail = dd.idDetail
+LEFT JOIN (
+    SELECT idDetail, SUM(Quantity) AS Quantity
+    FROM expired_products
+    GROUP BY idDetail
+) ep ON ep.idDetail = dd.idDetail
+GROUP BY dd.idDetail
+ORDER BY d.DeliveryDate ASC;";
                     }
 
                     using (var cmd = new MySqlCommand(query, con))
@@ -131,19 +130,21 @@ ORDER BY d.DeliveryDate ASC;";
                         DataTable dt = new DataTable();
                         adapter.Fill(dt);
                         dgvStockReport.DataSource = dt;
-
+                        FixHeaderTexts(dgvStockReport);
                         // 🔹 Prevent automatic row highlight after data load
                         dgvStockReport.ClearSelection();
                         dgvStockReport.CurrentCell = null;
 
-
+                        // Optional: make Delivery Receipt first column
+                        if (dgvStockReport.Columns.Contains("Delivery Receipt"))
+                            dgvStockReport.Columns["Delivery Receipt"].DisplayIndex = 0;
                     }
                 }
 
-                // Hide any ID columns automatically
+                // Hide internal ID columns automatically
                 foreach (DataGridViewColumn col in dgvStockReport.Columns)
                 {
-                    if (col.Name.ToLower().Contains("id"))
+                    if (col.Name.ToLower().Contains("id") && col.Name != "Delivery Receipt")
                         col.Visible = false;
                 }
 
@@ -164,62 +165,79 @@ ORDER BY d.DeliveryDate ASC;";
             {
                 MessageBox.Show("Error loading stock report: " + ex.Message);
             }
+
         }
 
 
 
         private void StyleDataGridView(DataGridView dgv)
         {
-            // General appearance
+            // --- General appearance ---
             dgv.EnableHeadersVisualStyles = false;
             dgv.BackgroundColor = Color.White;
             dgv.BorderStyle = BorderStyle.FixedSingle;
             dgv.GridColor = Color.LightGray;
             dgv.CellBorderStyle = DataGridViewCellBorderStyle.Single;
 
-            // Header style
+            // --- Header style (DITO ANG FIX) ---
             dgv.ColumnHeadersDefaultCellStyle.BackColor = Color.White;
             dgv.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
-            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold); // Binabaan ko sa 10 para mas magkasya
             dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dgv.ColumnHeadersHeight = 35;
 
-            // Row style
+            // 1. Payagan ang text na bumaba sa second line (Word Wrap)
+            dgv.ColumnHeadersDefaultCellStyle.WrapMode = DataGridViewTriState.True;
+
+            // 2. Palitan ang DisableResizing. Gawin nating AutoSize para lumaki ang height pag mahaba ang text.
+            dgv.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+
+            // 3. Lagyan natin ng Padding para hindi dikit ang letters sa lines
+            dgv.ColumnHeadersDefaultCellStyle.Padding = new Padding(2, 5, 2, 5);
+
+            // --- Row style ---
             dgv.RowsDefaultCellStyle.BackColor = Color.White;
             dgv.RowsDefaultCellStyle.ForeColor = Color.Black;
             dgv.RowsDefaultCellStyle.Font = new Font("Segoe UI", 10);
             dgv.RowsDefaultCellStyle.Padding = new Padding(5);
-            dgv.RowTemplate.Height = 30;
+            dgv.RowTemplate.Height = 35;
+            dgv.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
 
-            // Selection style
+            // --- Selection style ---
             dgv.DefaultCellStyle.SelectionBackColor = Color.LightBlue;
             dgv.DefaultCellStyle.SelectionForeColor = Color.Black;
 
-            // Disable adding rows by user
+            // --- Control Settings ---
             dgv.AllowUserToAddRows = false;
-
-            // Disable row headers
             dgv.RowHeadersVisible = false;
+            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv.MultiSelect = false;
 
-            // Columns fill evenly across available width
+            // --- Column sizing ---
             dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            dgv.ScrollBars = ScrollBars.Vertical;
-            // Pantay ang columns at minimum width
             foreach (DataGridViewColumn col in dgv.Columns)
             {
                 col.SortMode = DataGridViewColumnSortMode.NotSortable;
-                col.MinimumWidth = 100; // adjust kung gusto mo mas malaki
-                col.FillWeight = 1;     // pantay ang distribution
+
+                // 4. Importante: Siguraduhin nating may HeaderText na may spaces
+                // Dahil kung "DeliveryReceipt" (walang space), hindi yan mag-wa-wrap.
+                if (col.HeaderText == "DeliveryReceipt") col.HeaderText = "Delivery Receipt";
+                if (col.HeaderText == "ProductName") col.HeaderText = "Product Name";
+                if (col.HeaderText == "QtyDelivered") col.HeaderText = "Qty Delivered";
+                if (col.HeaderText == "DeliveryDate") col.HeaderText = "Delivery Date";
+                if (col.HeaderText == "RemainingQty") col.HeaderText = "Remaining Qty";
+                // ... gawin mo rin sa iba pang columns
+
+                col.MinimumWidth = 90; // Binabaan ko konti para hindi masyadong malapad
+
+                if (col.Name.Contains("Qty") || col.Name.Contains("Remaining") || col.Name.Contains("Damage"))
+                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                else if (col.Name.Contains("Date"))
+                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                else
+                    col.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
 
-            // Single row selection
-            dgvStockReport.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvStockReport.MultiSelect = false;
-
-
-            // Optional: alternating row colors for better readability
             dgv.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 245, 245);
         }
 

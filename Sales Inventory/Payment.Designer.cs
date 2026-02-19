@@ -98,7 +98,7 @@
             this.txtChange.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtChange.ForeColor = System.Drawing.Color.Black;
             this.txtChange.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtChange.Location = new System.Drawing.Point(249, 66);
+            this.txtChange.Location = new System.Drawing.Point(249, 68);
             this.txtChange.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.txtChange.Name = "txtChange";
             this.txtChange.PlaceholderText = "";

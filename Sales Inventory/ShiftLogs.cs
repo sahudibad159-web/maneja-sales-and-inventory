@@ -103,7 +103,7 @@ namespace Sales_Inventory
                 ConnectionModule.openCon();
 
                 string query = @"SELECT ShiftID, CashierName, ShiftStart, ShiftEnd, TotalSales, CashSales, 
-                            TotalDiscounts, VoidedTotal, NetSales, GCashSales, PointsSales, 
+                            TotalDiscounts, VoidedTotal, GCashSales, NetSales, PointsSales, 
                             SeniorDiscount, PwdDiscount
                          FROM shift_logs
                          WHERE ShiftStart BETWEEN @From AND @To
@@ -167,7 +167,7 @@ namespace Sales_Inventory
 
                 string query = @"SELECT CashierName, ShiftStart, ShiftEnd, 
                                 TotalSales, CashSales, TotalDiscounts, 
-                                VoidedTotal, NetSales, GCashSales, PointsSales, 
+                                VoidedTotal, GCashSales, NetSales, PointsSales, 
                                 SeniorDiscount, PwdDiscount
                          FROM shift_logs
                          WHERE ShiftStart BETWEEN @From AND @To

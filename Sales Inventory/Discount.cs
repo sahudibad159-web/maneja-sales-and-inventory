@@ -141,11 +141,22 @@ namespace Sales_Inventory
                     IsVatExempt = true;
 
                     DiscountedItems.Clear();
+                    // Palitan ang loop sa loob ng Step 3:
                     foreach (var row in selectedItems)
                     {
-                        decimal price = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
+                        // Sa loob ng foreach (var row in selectedItems) ng btnSave_Click:
+
+                        decimal priceWithVat = Convert.ToDecimal(row.Cells["PriceColumn"].Value);
                         int qty = Convert.ToInt32(row.Cells["QuantityColumn"].Value);
-                        decimal discountAmount = price * qty * discountRate;
+
+                        // 1. Kunin ang Net of VAT at i-round sa 2 decimal places (Standard PH Tax practice)
+                        decimal priceWithoutVat = Math.Round(priceWithVat / 1.12m, 2);
+
+                        // 2. I-compute ang discount per piece at i-round din
+                        decimal discountPerPiece = Math.Round(priceWithoutVat * discountRate, 2);
+
+                        // 3. Multiply sa Quantity
+                        decimal totalItemDiscount = discountPerPiece * qty;
 
                         DiscountedItems.Add(new DiscountResult
                         {
@@ -153,7 +164,7 @@ namespace Sales_Inventory
                             DiscountType = discountType,
                             DiscountFullName = txtFullName.Text.Trim(),
                             DiscountIDNumber = discountID,
-                            DiscountAmount = discountAmount
+                            DiscountAmount = totalItemDiscount // Ito na ang ipapasa sa Main Form
                         });
                     }
 

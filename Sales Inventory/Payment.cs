@@ -271,17 +271,21 @@ namespace Sales_Inventory
         {
             decimal cash = 0, gcash = 0;
 
-            // Parse Cash
             if (decimal.TryParse(txtCash.Text, out decimal c))
                 cash = c;
 
-            // Parse GCash
             if (decimal.TryParse(txtGcash.Text, out decimal g))
                 gcash = g;
 
-            // Compute total
             decimal totalPayment = cash + gcash;
-            decimal change = totalPayment - totalAmount;
+
+            // ✅ GAMITIN ANG netAmount hindi totalAmount
+            decimal pointsApplied = Math.Min(RedeemPoints, netAmount);
+            decimal amountAfterPoints = netAmount - pointsApplied;
+            if (amountAfterPoints < 0) amountAfterPoints = 0;
+
+            decimal change = totalPayment - amountAfterPoints;
+            if (change < 0) change = 0;
 
             txtChange.Text = change.ToString("N2");
         }
@@ -303,11 +307,26 @@ namespace Sales_Inventory
 
 
 
-        private void PrintReceipt(long saleId, decimal cash, decimal gcash, decimal change,
-                           string discountType, string discountName, string discountID,
-                           string memberCode, decimal earnedPoints)
+        private void PrintReceipt(
+            long saleId,
+            decimal cash,
+            decimal gcash,
+            decimal change,
+            string discountType,
+            string discountName,
+            string discountID,
+            string memberCode,
+            decimal earnedPoints,
+            decimal subtotal,      // original total before discount/points
+            decimal vat,
+            decimal discount,
+            decimal net,           // subtotal - discount - points
+            decimal redeemedPoints
+
+        )
         {
-            string memberName = ""; // default empty
+            string memberName = "";
+
             if (!string.IsNullOrEmpty(memberCode))
             {
                 try
@@ -326,27 +345,25 @@ namespace Sales_Inventory
             }
 
             PrintDocument printDoc = new PrintDocument();
-
-            // Set custom paper size
-            PaperSize paperSize = new PaperSize("Custom", 200, 1000); // 2.0 inch width x 10 inch height
+            PaperSize paperSize = new PaperSize("Custom", 200, 1200);
             printDoc.DefaultPageSettings.PaperSize = paperSize;
-            printDoc.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0); // remove default margins
+            printDoc.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
             printDoc.PrintPage += (sender, e) =>
             {
-                int paperWidth = 180; // 58mm receipt
+                int paperWidth = 180;
                 int marginLeft = 5;
                 int startY = 5;
-                int lineHeight = 20;
+                int lineHeight = 18;
 
-                // Fonts
                 Font fontTitle = new Font("Arial", 8, FontStyle.Bold);
                 Font fontBody = new Font("Arial", 7, FontStyle.Regular);
                 Font fontBold = new Font("Arial", 7, FontStyle.Bold);
                 Brush brush = Brushes.Black;
 
-                // Header
+                // ================= HEADER =================
                 string storeName = "MANEJA GROCERY STORE";
-                string storeAddress = "Menur St, Maharlika Village, Taguig City";
+                string storeAddress = "A22 A Reyes, New Lower Bicutan, Taguig City";
 
                 int textWidth = (int)e.Graphics.MeasureString(storeName, fontTitle).Width;
                 e.Graphics.DrawString(storeName, fontTitle, brush, (paperWidth - textWidth) / 2, startY);
@@ -359,15 +376,19 @@ namespace Sales_Inventory
                 e.Graphics.DrawString(new string('=', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
-                // Sale info
+                // ================= SALE INFO =================
                 e.Graphics.DrawString("Receipt #: " + saleId, fontBold, brush, marginLeft, startY); startY += lineHeight;
                 e.Graphics.DrawString("Cashier: " + ConnectionModule.Session.FullName, fontBody, brush, marginLeft, startY); startY += lineHeight;
                 e.Graphics.DrawString("Date: " + DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), fontBody, brush, marginLeft, startY); startY += lineHeight;
 
-                // Column headers
+                e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
+                startY += lineHeight;
+
+                // ================= ITEMS =================
                 int colQtyX = marginLeft;
                 int colItemX = colQtyX + 25;
                 int colPriceX = paperWidth - 55;
+
                 e.Graphics.DrawString("QTY", fontBold, brush, colQtyX, startY);
                 e.Graphics.DrawString("ITEM", fontBold, brush, colItemX, startY);
                 e.Graphics.DrawString("PRICE", fontBold, brush, colPriceX, startY);
@@ -376,14 +397,13 @@ namespace Sales_Inventory
                 e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
-                // Loop cart items
                 foreach (DataGridViewRow row in posCart.Rows)
                 {
                     if (row.IsNewRow) continue;
 
                     string qty = row.Cells["QuantityColumn"].Value.ToString();
                     string item = row.Cells["ProductNameColumn"].Value.ToString();
-                    string price = Convert.ToDecimal(row.Cells["TotalPriceColumn"].Value).ToString("N2");
+                    string price = Convert.ToDecimal(row.Cells["PriceColumn"].Value).ToString("N2");
 
                     e.Graphics.DrawString(qty, fontBody, brush, colQtyX, startY);
                     e.Graphics.DrawString(item, fontBody, brush, colItemX, startY);
@@ -394,25 +414,49 @@ namespace Sales_Inventory
                 e.Graphics.DrawString(new string('=', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
-                // Totals
-                int rightAlignX = paperWidth - 55;
+                // ================= TOTALS =================
+                int rightAlignX = paperWidth - 5; // Inadjust ko para mas sagad sa kanan
+
                 e.Graphics.DrawString("Subtotal:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(totalAmount.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                string strSubtotal = subtotal.ToString("N2");
+                e.Graphics.DrawString(strSubtotal, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strSubtotal, fontBody).Width, startY);
                 startY += lineHeight;
 
-                e.Graphics.DrawString("VAT:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(vatAmount.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                // --- DITO ANG DAGDAG PARA SA VAT-EXEMPT ---
+                if (discount > 0)
+                {
+                    decimal vatExemptSales = subtotal / 1.12m; // Tinatanggal ang 12% VAT
+                    e.Graphics.DrawString("VAT-Exempt Sales:", fontBold, brush, marginLeft, startY);
+                    string strVatEx = vatExemptSales.ToString("N2");
+                    e.Graphics.DrawString(strVatEx, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strVatEx, fontBody).Width, startY);
+                    startY += lineHeight;
+                }
+
+                e.Graphics.DrawString("VAT (12%):", fontBold, brush, marginLeft, startY);
+                string strVat = vat.ToString("N2");
+                e.Graphics.DrawString(strVat, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strVat, fontBody).Width, startY);
                 startY += lineHeight;
 
                 e.Graphics.DrawString("Discount:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(discountAmount.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                string strDisc = discount.ToString("N2");
+                e.Graphics.DrawString(strDisc, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strDisc, fontBody).Width, startY);
                 startY += lineHeight;
+                // ------------------------------------------
 
-                e.Graphics.DrawString("Total:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(netAmount.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                if (redeemedPoints > 0)
+                {
+                    e.Graphics.DrawString("Points Used:", fontBold, brush, marginLeft, startY);
+                    string strPoints = redeemedPoints.ToString("N2");
+                    e.Graphics.DrawString(strPoints, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strPoints, fontBody).Width, startY);
+                    startY += lineHeight;
+                }
+
+                e.Graphics.DrawString("TOTAL :", fontBold, brush, marginLeft, startY);
+                string strNet = net.ToString("N2");
+                e.Graphics.DrawString(strNet, fontBold, brush, rightAlignX - e.Graphics.MeasureString(strNet, fontBold).Width, startY);
                 startY += lineHeight * 2;
 
-                // Payments
+                // ================= PAYMENTS =================
                 e.Graphics.DrawString("Cash:", fontBold, brush, marginLeft, startY);
                 e.Graphics.DrawString(cash.ToString("N2"), fontBody, brush, rightAlignX, startY);
                 startY += lineHeight;
@@ -425,26 +469,28 @@ namespace Sales_Inventory
                 e.Graphics.DrawString(change.ToString("N2"), fontBody, brush, rightAlignX, startY);
                 startY += lineHeight * 2;
 
-                // Discount Info
+                // ================= DISCOUNT INFO =================
                 if (!string.IsNullOrEmpty(discountType))
                 {
                     e.Graphics.DrawString("Discount Type: " + discountType, fontBody, brush, marginLeft, startY);
                     startY += lineHeight;
+
                     e.Graphics.DrawString("Name: " + discountName, fontBody, brush, marginLeft, startY);
                     startY += lineHeight;
+
                     e.Graphics.DrawString("ID: " + discountID, fontBody, brush, marginLeft, startY);
                     startY += lineHeight;
                 }
 
-                // Membership Info
+                // ================= MEMBER INFO =================
                 if (!string.IsNullOrEmpty(memberCode))
                 {
                     e.Graphics.DrawString("Member Code: " + memberCode, fontBody, brush, marginLeft, startY);
                     startY += lineHeight;
 
-                    if (!string.IsNullOrEmpty(MemberName)) // use property
+                    if (!string.IsNullOrEmpty(memberName))
                     {
-                        e.Graphics.DrawString("Member Name: " + MemberName, fontBody, brush, marginLeft, startY);
+                        e.Graphics.DrawString("Member Name: " + memberName, fontBody, brush, marginLeft, startY);
                         startY += lineHeight;
                     }
 
@@ -452,11 +498,10 @@ namespace Sales_Inventory
                     startY += lineHeight;
                 }
 
-
                 e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
-                // Footer
+                // ================= FOOTER =================
                 string footer = "** THANK YOU FOR SHOPPING! **";
                 textWidth = (int)e.Graphics.MeasureString(footer, fontBold).Width;
                 e.Graphics.DrawString(footer, fontBold, brush, (paperWidth - textWidth) / 2, startY);
@@ -476,50 +521,40 @@ namespace Sales_Inventory
 
                 // Compute total after discount and points
                 decimal pointsApplied = Math.Min(RedeemPoints, netAmount);
-                decimal amountAfterDiscount = totalAmount - discountAmount;
+                // Hindi na tayo magbabawas ulit. 
+                // Ang 'netAmount' (35.71) ay discounted na, kaya ito na ang gagamitin natin.
+                decimal amountAfterDiscount = netAmount;
                 if (amountAfterDiscount < 0) amountAfterDiscount = 0;
 
                 decimal amountAfterPoints = amountAfterDiscount - pointsApplied;
                 if (amountAfterPoints < 0) amountAfterPoints = 0;
 
-                // ✅ Limit cash/gcash to not exceed total due
+                // Calculate total payment
                 decimal totalPaid = cash + gcash;
+
+                // ✅ Calculate change for resibo
+                decimal change = totalPaid - amountAfterPoints;
+                if (change < 0) change = 0; // if underpaid
+
+                // ✅ Determine actual cash/GCash used for DB (limit to total due)
+                decimal actualCashUsed = cash;
+                decimal actualGCashUsed = gcash;
+
                 if (totalPaid > amountAfterPoints)
                 {
-                    decimal excess = totalPaid - amountAfterPoints;
-
-                    // Proportionally adjust the cash/gcash values
-                    if (gcash > 0 && cash > 0)
-                    {
-                        decimal ratio = cash / (cash + gcash);
-                        cash = Math.Round(amountAfterPoints * ratio, 2);
-                        gcash = amountAfterPoints - cash;
-                    }
-                    else if (cash > 0)
-                    {
-                        cash = amountAfterPoints;
-                        gcash = 0;
-                    }
-                    else if (gcash > 0)
-                    {
-                        gcash = amountAfterPoints;
-                        cash = 0;
-                    }
-
-                    totalPaid = amountAfterPoints; // cap total payment to exact amount due
+                    // Proportionally reduce for DB purposes only
+                    decimal ratio = amountAfterPoints / totalPaid;
+                    actualCashUsed = Math.Round(cash * ratio, 2);
+                    actualGCashUsed = amountAfterPoints - actualCashUsed;
                 }
 
-                // ✅ Validate payment again
+                // Validate payment
                 if (totalPaid < amountAfterPoints)
                 {
                     MessageBox.Show("Insufficient payment!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                decimal change = 0; // no excess payment allowed anymore
-                // 🧠 New logic for saving actual sale allocation
-                decimal actualCashUsed = 0;
-                decimal actualGCashUsed = 0;
                 using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
                 {
                     con.Open();
@@ -537,14 +572,8 @@ namespace Sales_Inventory
 
                             }
 
-                            // If totalPaid > amountAfterPoints, we need to distribute proportionally
-                            if (totalPaid > 0)
-                            {
-                                if (cash > 0)
-                                    actualCashUsed = Math.Min(cash, amountAfterPoints); // don’t exceed sale total
-                                if (gcash > 0 && actualCashUsed < amountAfterPoints)
-                                    actualGCashUsed = Math.Min(gcash, amountAfterPoints - actualCashUsed);
-                            }
+                            actualCashUsed = cash;
+                            actualGCashUsed = gcash;
 
                             // 3️⃣ Payment method string
                             string paymentMethod = "";
@@ -656,7 +685,13 @@ WHERE idDetail=@idDetail AND ProductID=@productId AND MovementType='OUT'";
                                     {
                                         cmdInv.Parameters.AddWithValue("@qty", deduct);
                                         cmdInv.Parameters.AddWithValue("@productId", productId);
-                                        cmdInv.ExecuteNonQuery();
+
+                                        int rowsAffected = cmdInv.ExecuteNonQuery();
+
+                                        if (rowsAffected == 0)
+                                        {
+                                            throw new Exception("Not enough stock available.");
+                                        }
                                     }
 
                                     string insertMovement = @"
@@ -678,7 +713,7 @@ VALUES (@idDetail, @productId, 'OUT', @qty, @expDate, NOW(), 'POS Sale', @refere
                                     throw new Exception($"Not enough stock for ProductID {productId}");
                             }
 
-                            // Resolve MemberId kung null pero may MemberCode
+                            // Resolve MemberId kung null pero may MemberCodedmi
                             if (!MemberId.HasValue && !string.IsNullOrEmpty(MemberCode))
                             {
                                 using (var cmd = new MySqlCommand("SELECT MemberID FROM members WHERE MemberCode=@code LIMIT 1", con, trans))
@@ -741,7 +776,22 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                                 PaymentMethod = paymentMethod
                             };
 
-                            PrintReceipt(saleId, cash, gcash, change, DiscountType, DiscountFullName, DiscountIDNumber, MemberCode, earnedPoints);
+                            PrintReceipt(
+                                 saleId,
+                                 actualCashUsed,
+                                 actualGCashUsed,
+                                 change,
+                                 DiscountType,
+                                 DiscountFullName,
+                                 DiscountIDNumber,
+                                 MemberCode,
+                                 earnedPoints,
+                                 totalAmount,
+                                 vatAmount,
+                                 discountAmount,
+                                 amountAfterPoints,
+                                 pointsApplied
+                             );
 
                             this.DialogResult = DialogResult.OK;
                             this.Close();

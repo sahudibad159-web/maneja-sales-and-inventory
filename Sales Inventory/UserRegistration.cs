@@ -38,6 +38,7 @@ namespace Sales_Inventory
             txtPassword.Clear();
             txtAge.Clear();
            txtContact.Clear();
+            txtConfirmPassword.Clear();
             cmbRole.SelectedIndex = -1;
             cmbRole.SelectedItem = null;
             dgvUsers.ClearSelection();
@@ -204,6 +205,7 @@ namespace Sales_Inventory
             txtPassword.ContextMenu = new ContextMenu();
             cmbRole.ContextMenu = new ContextMenu();
             txtUserName.ContextMenu = new ContextMenu();
+            txtConfirmPassword.ContextMenu = new ContextMenu();
 
             // Bawal Ctrl+V / Ctrl+C / Ctrl+X / Shift+Insert / Ctrl+Insert
             txtAge.KeyDown += BlockCopyPaste_KeyDown;
@@ -213,9 +215,11 @@ namespace Sales_Inventory
             txtPassword.KeyDown += BlockCopyPaste_KeyDown;
             cmbRole.KeyDown += BlockCopyPaste_KeyDown;
             txtUserName.KeyDown += BlockCopyPaste_KeyDown;
+            txtConfirmPassword.KeyDown += BlockCopyPaste_KeyDown;
 
             // Auto-normalize spaces kapag iniwan ang textbox
             txtUserName.Leave += NormalizeSpaces;
+            txtConfirmPassword.Leave += NormalizeSpaces;
             cmbRole.Leave += NormalizeSpaces;
             txtPassword.Leave += NormalizeSpaces;
             txtLastName.Leave += NormalizeSpaces;
@@ -611,6 +615,25 @@ namespace Sales_Inventory
                     MessageBox.Show("User cannot be older than 50 years.", "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
+                // 3️⃣ Validate password length
+                if (txtPassword.Text.Length < 6)
+                {
+                    MessageBox.Show("Password must be at least 6 characters long.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 3.1️⃣ Confirm password match
+                if (txtPassword.Text.Trim() != txtConfirmPassword.Text.Trim())
+                {
+                    MessageBox.Show("Passwords do not match.",
+                                    "Validation",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Warning);
+                    return;
+                }
 
                 // ✅ 4. Validate role selection
                 string newRole = cmbRole.Text.Trim();
@@ -752,6 +775,16 @@ namespace Sales_Inventory
             if (dgvUsers.CurrentRow == null)
             {
                 MessageBox.Show("Please select a user first.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // 3.1️⃣ Confirm password match
+            if (txtPassword.Text.Trim() != txtConfirmPassword.Text.Trim())
+            {
+                MessageBox.Show("Passwords do not match.",
+                                "Validation",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
                 return;
             }
 

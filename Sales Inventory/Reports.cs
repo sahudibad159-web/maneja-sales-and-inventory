@@ -175,5 +175,27 @@ namespace Sales_Inventory
             //                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             //}
         }
+
+        private void guna2Button4_Click_1(object sender, EventArgs e)
+        {
+            try
+            {
+                using (Critical regForm = new Critical())
+                {
+                    var result = regForm.ShowDialog();
+
+                    if (result == DialogResult.OK)
+                    {
+                        // dito na lang optional refresh kung kailangan
+                        // LoadMembers();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error opening LogInLogs form: " + ex.Message,
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@
             this.guna2Button1 = new Guna.UI2.WinForms.Guna2Button();
             this.btnVat = new Guna.UI2.WinForms.Guna2Button();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.guna2Button4 = new Guna.UI2.WinForms.Guna2Button();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -50,9 +51,9 @@
             this.LogInLogs.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.LogInLogs.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.LogInLogs.ForeColor = System.Drawing.Color.Black;
-            this.LogInLogs.Location = new System.Drawing.Point(550, 266);
+            this.LogInLogs.Location = new System.Drawing.Point(641, 403);
             this.LogInLogs.Name = "LogInLogs";
-            this.LogInLogs.Size = new System.Drawing.Size(268, 140);
+            this.LogInLogs.Size = new System.Drawing.Size(253, 120);
             this.LogInLogs.TabIndex = 58;
             this.LogInLogs.Text = "Login Logs";
             this.LogInLogs.Click += new System.EventHandler(this.LogInLogs_Click);
@@ -69,9 +70,9 @@
             this.BtnShift_Logs.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.BtnShift_Logs.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.BtnShift_Logs.ForeColor = System.Drawing.Color.Black;
-            this.BtnShift_Logs.Location = new System.Drawing.Point(117, 266);
+            this.BtnShift_Logs.Location = new System.Drawing.Point(641, 247);
             this.BtnShift_Logs.Name = "BtnShift_Logs";
-            this.BtnShift_Logs.Size = new System.Drawing.Size(260, 140);
+            this.BtnShift_Logs.Size = new System.Drawing.Size(253, 120);
             this.BtnShift_Logs.TabIndex = 57;
             this.BtnShift_Logs.Text = "Sales Transaction";
             this.BtnShift_Logs.Click += new System.EventHandler(this.BtnShift_Logs_Click);
@@ -88,9 +89,9 @@
             this.guna2Button3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.guna2Button3.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guna2Button3.ForeColor = System.Drawing.Color.Black;
-            this.guna2Button3.Location = new System.Drawing.Point(550, 462);
+            this.guna2Button3.Location = new System.Drawing.Point(421, 540);
             this.guna2Button3.Name = "guna2Button3";
-            this.guna2Button3.Size = new System.Drawing.Size(268, 140);
+            this.guna2Button3.Size = new System.Drawing.Size(236, 120);
             this.guna2Button3.TabIndex = 56;
             this.guna2Button3.Text = "Stock Report";
             this.guna2Button3.Click += new System.EventHandler(this.guna2Button3_Click);
@@ -107,9 +108,9 @@
             this.guna2Button2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.guna2Button2.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guna2Button2.ForeColor = System.Drawing.Color.Black;
-            this.guna2Button2.Location = new System.Drawing.Point(550, 78);
+            this.guna2Button2.Location = new System.Drawing.Point(641, 91);
             this.guna2Button2.Name = "guna2Button2";
-            this.guna2Button2.Size = new System.Drawing.Size(268, 140);
+            this.guna2Button2.Size = new System.Drawing.Size(253, 120);
             this.guna2Button2.TabIndex = 55;
             this.guna2Button2.Text = "Nearly Expired  Products";
             this.guna2Button2.Click += new System.EventHandler(this.guna2Button2_Click);
@@ -126,9 +127,9 @@
             this.guna2Button1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.guna2Button1.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.guna2Button1.ForeColor = System.Drawing.Color.Black;
-            this.guna2Button1.Location = new System.Drawing.Point(117, 78);
+            this.guna2Button1.Location = new System.Drawing.Point(172, 91);
             this.guna2Button1.Name = "guna2Button1";
-            this.guna2Button1.Size = new System.Drawing.Size(260, 140);
+            this.guna2Button1.Size = new System.Drawing.Size(253, 120);
             this.guna2Button1.TabIndex = 54;
             this.guna2Button1.Text = "Expired Products";
             this.guna2Button1.Click += new System.EventHandler(this.guna2Button1_Click);
@@ -145,15 +146,16 @@
             this.btnVat.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
             this.btnVat.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnVat.ForeColor = System.Drawing.Color.Black;
-            this.btnVat.Location = new System.Drawing.Point(117, 462);
+            this.btnVat.Location = new System.Drawing.Point(172, 403);
             this.btnVat.Name = "btnVat";
-            this.btnVat.Size = new System.Drawing.Size(260, 140);
+            this.btnVat.Size = new System.Drawing.Size(253, 120);
             this.btnVat.TabIndex = 53;
             this.btnVat.Text = "Audit Trail";
             this.btnVat.Click += new System.EventHandler(this.btnVat_Click);
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.guna2Button4);
             this.panel3.Controls.Add(this.LogInLogs);
             this.panel3.Controls.Add(this.btnVat);
             this.panel3.Controls.Add(this.guna2Button2);
@@ -163,9 +165,28 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(0, 0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(996, 694);
+            this.panel3.Size = new System.Drawing.Size(1075, 694);
             this.panel3.TabIndex = 59;
             this.panel3.Paint += new System.Windows.Forms.PaintEventHandler(this.panel3_Paint);
+            // 
+            // guna2Button4
+            // 
+            this.guna2Button4.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.guna2Button4.BorderRadius = 11;
+            this.guna2Button4.BorderThickness = 1;
+            this.guna2Button4.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button4.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.guna2Button4.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.guna2Button4.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.guna2Button4.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(217)))), ((int)(((byte)(217)))));
+            this.guna2Button4.Font = new System.Drawing.Font("Century Gothic", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.guna2Button4.ForeColor = System.Drawing.Color.Black;
+            this.guna2Button4.Location = new System.Drawing.Point(172, 247);
+            this.guna2Button4.Name = "guna2Button4";
+            this.guna2Button4.Size = new System.Drawing.Size(253, 120);
+            this.guna2Button4.TabIndex = 59;
+            this.guna2Button4.Text = "Critical Stock";
+            this.guna2Button4.Click += new System.EventHandler(this.guna2Button4_Click_1);
             // 
             // Reports
             // 
@@ -173,7 +194,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.panel3);
             this.Name = "Reports";
-            this.Size = new System.Drawing.Size(996, 700);
+            this.Size = new System.Drawing.Size(1075, 770);
             this.panel3.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -187,5 +208,6 @@
         private Guna.UI2.WinForms.Guna2Button BtnShift_Logs;
         private Guna.UI2.WinForms.Guna2Button LogInLogs;
         private System.Windows.Forms.Panel panel3;
+        private Guna.UI2.WinForms.Guna2Button guna2Button4;
     }
 }

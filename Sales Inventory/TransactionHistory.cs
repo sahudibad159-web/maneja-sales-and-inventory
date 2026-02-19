@@ -277,8 +277,44 @@ namespace Sales_Inventory
         {
 
             if (dgvTransactions.CurrentRow == null) return;
-
+            if (dgvTransactions.CurrentRow == null) return;
             long saleId = Convert.ToInt64(dgvTransactions.CurrentRow.Cells["SaleID"].Value);
+
+            // 🛑 STEP 0: SHIFT VALIDATION (Pinaka-importante)
+            DateTime currentShiftStart = ConnectionModule.Session.ShiftStart;
+
+            using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
+            {
+                con.Open();
+                string checkDateQuery = "SELECT TransactionDate, IsVoided FROM sales WHERE SaleID=@id";
+                using (var cmd = new MySqlCommand(checkDateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", saleId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            DateTime transDate = Convert.ToDateTime(reader["TransactionDate"]);
+                            bool alreadyVoided = Convert.ToBoolean(reader["IsVoided"]);
+
+                            // 1. Check if already voided
+                            if (alreadyVoided)
+                            {
+                                MessageBox.Show("This transaction is already voided.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            // 2. Check if transaction is from old shift
+                            if (transDate < currentShiftStart)
+                            {
+                                MessageBox.Show("Cannot void: This transaction was made in a previous shift.",
+                                                "Action Prohibited", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
 
             // 🔒 STEP 1: Ask for admin password confirmation (masked)
             string enteredPassword = "";
@@ -296,7 +332,7 @@ namespace Sales_Inventory
             }
 
             // 🔑 STEP 2: Hash the entered password
-            string hashedPassword = HashPassword(enteredPassword);
+            string hashedPassword =(enteredPassword);
 
             // 🔍 STEP 3: Verify admin password and get FullName
             string adminFullName = "";
@@ -580,17 +616,47 @@ namespace Sales_Inventory
 
         private void btnVoidItem_Click(object sender, EventArgs e)
         {
-            if (dgvTransactionItems.CurrentRow == null) return;
+            if (dgvTransactions.CurrentRow == null) return;
+            long saleId = Convert.ToInt64(dgvTransactions.CurrentRow.Cells["SaleID"].Value);
 
-            bool isVoided = Convert.ToBoolean(dgvTransactionItems.CurrentRow.Cells["IsVoided"].Value);
-            if (isVoided)
+            // 🛑 STEP 0: SHIFT VALIDATION (Pinaka-importante)
+            DateTime currentShiftStart = ConnectionModule.Session.ShiftStart;
+
+            using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
             {
-                MessageBox.Show("This item is already voided.", "Void", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                con.Open();
+                string checkDateQuery = "SELECT TransactionDate, IsVoided FROM sales WHERE SaleID=@id";
+                using (var cmd = new MySqlCommand(checkDateQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@id", saleId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            DateTime transDate = Convert.ToDateTime(reader["TransactionDate"]);
+                            bool alreadyVoided = Convert.ToBoolean(reader["IsVoided"]);
+
+                            // 1. Check if already voided
+                            if (alreadyVoided)
+                            {
+                                MessageBox.Show("This transaction is already voided.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
+                            }
+
+                            // 2. Check if transaction is from old shift
+                            if (transDate < currentShiftStart)
+                            {
+                                MessageBox.Show("Cannot void: This transaction was made in a previous shift.",
+                                                "Action Prohibited", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                                return;
+                            }
+                        }
+                    }
+                }
             }
 
             long saleDetailId = Convert.ToInt64(dgvTransactionItems.CurrentRow.Cells["SaleDetailID"].Value);
-            long saleId = Convert.ToInt64(dgvTransactionItems.CurrentRow.Cells["SaleID"].Value);
+          //  long saleId = Convert.ToInt64(dgvTransactionItems.CurrentRow.Cells["SaleID"].Value);
 
             // 🟨 VALIDATION: Check if transaction is older than 15 hours
             using (var con = new MySqlConnection(ConnectionModule.con.ConnectionString))
@@ -634,7 +700,7 @@ namespace Sales_Inventory
             }
 
             // 🔑 STEP 2: Hash the entered password
-            string hashedPassword = HashPassword(enteredPassword);
+            string hashedPassword = (enteredPassword);
 
             // 🔍 STEP 3: Verify admin password and get FullName
             string adminFullName = "";
@@ -860,9 +926,6 @@ namespace Sales_Inventory
                 }
             }
         }
-      
-
-
         private string ShowInputBox(string text, string caption, string defaultValue)
         {
             Form prompt = new Form()

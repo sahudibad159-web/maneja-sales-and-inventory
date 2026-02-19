@@ -43,19 +43,19 @@
             this.dgvStockReport.AllowUserToResizeColumns = false;
             this.dgvStockReport.AllowUserToResizeRows = false;
             this.dgvStockReport.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvStockReport.Location = new System.Drawing.Point(12, 117);
+            this.dgvStockReport.Location = new System.Drawing.Point(12, 114);
             this.dgvStockReport.Name = "dgvStockReport";
             this.dgvStockReport.ReadOnly = true;
             this.dgvStockReport.RowHeadersWidth = 51;
             this.dgvStockReport.RowTemplate.Height = 24;
-            this.dgvStockReport.Size = new System.Drawing.Size(1337, 608);
+            this.dgvStockReport.Size = new System.Drawing.Size(1458, 608);
             this.dgvStockReport.TabIndex = 11;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Century Gothic", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(581, 22);
+            this.label1.Location = new System.Drawing.Point(640, 20);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(199, 37);
             this.label1.TabIndex = 78;
@@ -68,7 +68,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1361, 78);
+            this.panel1.Size = new System.Drawing.Size(1482, 75);
             this.panel1.TabIndex = 10;
             // 
             // chkShowOut
@@ -77,7 +77,7 @@
             this.chkShowOut.CheckedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.chkShowOut.CheckedState.InnerBorderColor = System.Drawing.Color.White;
             this.chkShowOut.CheckedState.InnerColor = System.Drawing.Color.White;
-            this.chkShowOut.Location = new System.Drawing.Point(1263, 84);
+            this.chkShowOut.Location = new System.Drawing.Point(1384, 81);
             this.chkShowOut.Name = "chkShowOut";
             this.chkShowOut.Size = new System.Drawing.Size(86, 27);
             this.chkShowOut.TabIndex = 12;
@@ -91,7 +91,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Century Schoolbook", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(1172, 88);
+            this.label2.Location = new System.Drawing.Point(1293, 85);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(85, 23);
             this.label2.TabIndex = 13;
@@ -119,7 +119,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1361, 764);
+            this.ClientSize = new System.Drawing.Size(1482, 767);
             this.Controls.Add(this.btnDamageItem);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.chkShowOut);
