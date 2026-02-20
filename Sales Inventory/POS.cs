@@ -1804,10 +1804,29 @@ VALUES (@memberId, @saleId, @earned, @redeem)";
                 e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
                 startY += lineHeight;
 
-                // Footer
+                // ================= FOOTER =================
                 string footer = "** THANK YOU FOR SHOPPING! **";
                 textWidth = (int)e.Graphics.MeasureString(footer, fontBold).Width;
                 e.Graphics.DrawString(footer, fontBold, brush, (paperWidth - textWidth) / 2, startY);
+                startY += lineHeight + 5; // Dagdag space para sa policy message
+
+                // --- VOID POLICY MESSAGE ---
+                Font fontPolicy = new Font("Arial", 6, FontStyle.Italic); // Mas maliit na font para sa fine print
+                string policy1 = "Voiding is only allowed during store hours";
+                string policy2 = "(5:00 AM - 8:00 PM). Strictly no voiding";
+                string policy3 = "once the cashier has ended the shift.";
+
+                // I-center ang bawat linya ng policy
+                int p1Width = (int)e.Graphics.MeasureString(policy1, fontPolicy).Width;
+                e.Graphics.DrawString(policy1, fontPolicy, brush, (paperWidth - p1Width) / 2, startY);
+                startY += 10; // Mas maliit na line height para sa policy text
+
+                int p2Width = (int)e.Graphics.MeasureString(policy2, fontPolicy).Width;
+                e.Graphics.DrawString(policy2, fontPolicy, brush, (paperWidth - p2Width) / 2, startY);
+                startY += 10;
+
+                int p3Width = (int)e.Graphics.MeasureString(policy3, fontPolicy).Width;
+                e.Graphics.DrawString(policy3, fontPolicy, brush, (paperWidth - p3Width) / 2, startY);
             };
 
             printDoc.Print();

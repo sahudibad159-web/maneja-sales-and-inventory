@@ -457,16 +457,20 @@ namespace Sales_Inventory
                 startY += lineHeight * 2;
 
                 // ================= PAYMENTS =================
+                // Ginawa nating katulad ng sa TOTALS ang alignment para hindi maputol
                 e.Graphics.DrawString("Cash:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(cash.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                string strCash = cash.ToString("N2");
+                e.Graphics.DrawString(strCash, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strCash, fontBody).Width, startY);
                 startY += lineHeight;
 
                 e.Graphics.DrawString("GCash:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(gcash.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                string strGcash = gcash.ToString("N2");
+                e.Graphics.DrawString(strGcash, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strGcash, fontBody).Width, startY);
                 startY += lineHeight;
 
                 e.Graphics.DrawString("Change:", fontBold, brush, marginLeft, startY);
-                e.Graphics.DrawString(change.ToString("N2"), fontBody, brush, rightAlignX, startY);
+                string strChange = change.ToString("N2");
+                e.Graphics.DrawString(strChange, fontBody, brush, rightAlignX - e.Graphics.MeasureString(strChange, fontBody).Width, startY);
                 startY += lineHeight * 2;
 
                 // ================= DISCOUNT INFO =================
@@ -502,9 +506,32 @@ namespace Sales_Inventory
                 startY += lineHeight;
 
                 // ================= FOOTER =================
+                e.Graphics.DrawString(new string('-', 28), fontBody, brush, marginLeft, startY);
+                startY += lineHeight;
+
                 string footer = "** THANK YOU FOR SHOPPING! **";
                 textWidth = (int)e.Graphics.MeasureString(footer, fontBold).Width;
                 e.Graphics.DrawString(footer, fontBold, brush, (paperWidth - textWidth) / 2, startY);
+                startY += lineHeight + 8; // Dinagdagan ang gap bago ang policy
+
+                // --- VOID POLICY MESSAGE (Pinatindi at pinalinaw) ---
+                Font fontPolicyBold = new Font("Arial", 7, FontStyle.Bold); // Pinalaki sa 7 at naka-Bold para mabasa
+                string policyHeading = "VOID POLICY:";
+                string policy1 = "Allowed only: 5:00 AM - 8:00 PM";
+                string policy2 = "Strictly no voiding after end shift.";
+
+                // I-center ang Policy Heading
+                int phWidth = (int)e.Graphics.MeasureString(policyHeading, fontPolicyBold).Width;
+                e.Graphics.DrawString(policyHeading, fontPolicyBold, brush, (paperWidth - phWidth) / 2, startY);
+                startY += 12;
+
+                // I-center ang bawat linya ng policy (Regular font)
+                int p1Width = (int)e.Graphics.MeasureString(policy1, fontBody).Width;
+                e.Graphics.DrawString(policy1, fontBody, brush, (paperWidth - p1Width) / 2, startY);
+                startY += 10;
+
+                int p2Width = (int)e.Graphics.MeasureString(policy2, fontBody).Width;
+                e.Graphics.DrawString(policy2, fontBody, brush, (paperWidth - p2Width) / 2, startY);
             };
 
             printDoc.Print();

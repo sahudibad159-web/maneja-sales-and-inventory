@@ -88,21 +88,21 @@ namespace Sales_Inventory
 
         private void DigitsOnly_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // 1. Safe casting using 'as'. Kung hindi TextBox ang sender, magiging null si tb.
             TextBox tb = sender as TextBox;
 
-            // allow control keys (Backspace, Delete, etc.)
-            if (char.IsControl(e.KeyChar))
-                return;
+            // 2. Guard Clause: Kung null si tb, wag nang ituloy ang execution para iwas crash.
+            if (tb == null) return;
 
-            // allow digits
+            // --- Iyong existing logic sa baba ---
+            if (char.IsControl(e.KeyChar)) return;
+
             if (char.IsDigit(e.KeyChar))
             {
-                // check 2 decimal places max
                 if (tb.Text.Contains("."))
                 {
                     int index = tb.Text.IndexOf(".");
-                    if (tb.SelectionStart > index &&
-                        tb.Text.Length - index > 2)
+                    if (tb.SelectionStart > index && tb.Text.Length - index > 2)
                     {
                         e.Handled = true;
                     }
@@ -110,30 +110,17 @@ namespace Sales_Inventory
                 return;
             }
 
-            // allow ONE decimal point
             if (e.KeyChar == '.')
             {
-                // bawal kung may "." na
-                if (tb.Text.Contains("."))
+                if (tb.Text.Contains(".") || tb.SelectionStart == 0)
                 {
                     e.Handled = true;
-                    return;
                 }
-
-                // bawal kung unang character
-                if (tb.SelectionStart == 0)
-                {
-                    e.Handled = true;
-                    return;
-                }
-
                 return;
             }
 
-            // block everything else
             e.Handled = true;
         }
-
         private void BlockCopyPaste_KeyDown(object sender, KeyEventArgs e)
         {
             if ((e.Control && (e.KeyCode == Keys.C || e.KeyCode == Keys.V || e.KeyCode == Keys.X)) ||
