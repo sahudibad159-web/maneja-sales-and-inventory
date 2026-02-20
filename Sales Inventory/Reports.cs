@@ -6,17 +6,46 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Security;
 using System.Windows.Forms;
 
 namespace Sales_Inventory
 {
     public partial class Reports : UserControl
     {
-        public Reports()
+        private string _role;
+
+        public Reports(string role)
         {
             InitializeComponent();
-        }
+            _role = role;
+            SetPermissions();
 
+        }
+        private void SetPermissions()
+        {
+            if (_role == "Staff")
+            {
+                // Staff lang makikita
+                guna2Button1.Visible = true;  // ExpiredProduct
+                guna2Button2.Visible = true;  // NearlyExpired
+                guna2Button4.Visible = true;  // Critical
+
+                // Hidden sa staff
+                guna2Button3.Visible = false; // StockReport
+                BtnShift_Logs.Visible = false;
+                LogInLogs.Visible = false;
+                btnVat.Visible = false;       // AuditTrail
+            }
+            else if (_role == "Admin")
+            {
+                // Admin makikita lahat
+                foreach (Control ctrl in this.Controls)
+                {
+                    ctrl.Visible = true;
+                }
+            }
+        }
         private void btnVat_Click(object sender, EventArgs e)
         {
             try

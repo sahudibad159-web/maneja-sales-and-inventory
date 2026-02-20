@@ -64,10 +64,10 @@ namespace Sales_Inventory
                 guna2Button3.Visible = true;
                 guna2Button4.Visible = true;
                 guna2Button5.Visible = true;
-             //   guna2Button6.Visible = true;
+                guna2Button8.Visible = true;
+
 
                 guna2Button7.Visible = false;
-                guna2Button8.Visible = false;
                 guna2Button9.Visible = false;
             }
         }
@@ -139,7 +139,7 @@ namespace Sales_Inventory
 
         private void guna2Button8_Click(object sender, EventArgs e)
         {
-            LoadForm(new Reports());
+            LoadForm(new Reports(ConnectionModule.Session.Role));
             SetHeader("Reports");
         }
 

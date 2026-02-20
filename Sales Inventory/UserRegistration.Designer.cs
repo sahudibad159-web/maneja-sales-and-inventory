@@ -201,10 +201,10 @@
             this.cmbRole.Items.AddRange(new object[] {
             "CASHIER",
             "STAFF"});
-            this.cmbRole.Location = new System.Drawing.Point(907, 24);
+            this.cmbRole.Location = new System.Drawing.Point(919, 24);
             this.cmbRole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.cmbRole.Name = "cmbRole";
-            this.cmbRole.Size = new System.Drawing.Size(191, 36);
+            this.cmbRole.Size = new System.Drawing.Size(169, 36);
             this.cmbRole.TabIndex = 181;
             // 
             // dgvUsers

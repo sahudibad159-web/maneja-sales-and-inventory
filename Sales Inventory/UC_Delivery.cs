@@ -345,7 +345,7 @@ namespace Sales_Inventory
             bool exists = false;
             try
             {
-                using (MySqlConnection con = new MySqlConnection("server=localhost;user id=root;password=;d"))
+                using (MySqlConnection con = new MySqlConnection("server=localhost;user id=root;password=;database=sales_inventory"))
                 {
                     con.Open();
                     string query = "SELECT COUNT(*) FROM product WHERE ProductName = @ProductName";
